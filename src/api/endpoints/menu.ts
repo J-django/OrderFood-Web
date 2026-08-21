@@ -1,7 +1,6 @@
-import { apiClient } from '../modules/client'
+import { get } from '@/api/modules/methods'
 import type { MenuItem } from '@/types'
 
-export async function getMenu() {
-  const response = await apiClient.get<MenuItem[]>('/menu')
-  return response.data
+export function getMenu() {
+  return get<MenuItem[]>('/menu')
 }

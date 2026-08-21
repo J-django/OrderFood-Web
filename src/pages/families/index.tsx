@@ -35,7 +35,7 @@ export default function FamiliesPage() {
                 <span className="icon-[lucide--house-heart] size-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <h2 className="text-[15px] font-bold text-stone-900">
+                <h2 className="text-4 font-bold text-stone-900">
                   {family.name}
                 </h2>
                 <p className="mt-1 truncate text-xs text-stone-500">

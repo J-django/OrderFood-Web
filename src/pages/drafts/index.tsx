@@ -1,44 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Page } from "@/components";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useDocumentTitle } from "@/hooks";
-import { useDraftStore } from "@/store";
-import type { DishDraft } from "@/types";
 import { routePaths } from "@/constants";
+import { useDocumentTitle } from "@/hooks";
+import { useCartStore, useDraftStore } from "@/store";
 
-const categoryImages: Record<string, string> = {
-  主食: "/images/menu/chicken-bowl.jpg",
-  小吃: "/images/menu/crispy-wings.jpg",
-  饮品: "/images/menu/lemon-soda.jpg",
-};
-
-function formatDraftTime(value: string) {
+function formatTime(value: string) {
   const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
   const pad = (part: number) => String(part).padStart(2, "0");
-
-  return [
-    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`,
-    `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`,
-  ].join(" ");
-}
-
-function getDraftImage(draft: DishDraft) {
-  return categoryImages[draft.category] ?? "/images/menu/garden-salad.jpg";
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
 export default function DraftsPage() {
@@ -46,112 +16,109 @@ export default function DraftsPage() {
   const navigate = useNavigate();
   const drafts = useDraftStore((state) => state.drafts);
   const removeDraft = useDraftStore((state) => state.removeDraft);
-  const [deletingDraftId, setDeletingDraftId] = useState<string | null>(null);
+  const setItems = useCartStore((state) => state.setItems);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  function handleDelete() {
-    if (!deletingDraftId) {
-      return;
-    }
-
-    removeDraft(deletingDraftId);
-    setDeletingDraftId(null);
+  function editDraft(id: string) {
+    const draft = drafts.find((entry) => entry.id === id);
+    if (!draft || !draft.items?.length) return;
+    setItems(draft.items);
+    localStorage.setItem("order-food-editing-draft", id);
+    navigate(routePaths.home);
   }
 
   return (
     <Page className="bg-[#f8f8f8]">
       <Page.Content>
-        {drafts.length > 0 ? (
+        {drafts.length ? (
           <section className="space-y-2.5 p-2.5" aria-label="草稿列表">
             {drafts.map((draft) => (
               <article
                 key={draft.id}
                 className="overflow-hidden rounded-2xl bg-white"
               >
-                <header className="flex items-center justify-between gap-3 border-b border-[#eeeeee] p-3 text-sm text-[#555555]">
-                  <p className="min-w-0 truncate">
-                    草稿 {formatDraftTime(draft.updatedAt)}
-                  </p>
-                  <div className="flex shrink-0 items-center gap-4 text-[#ff5f15]">
-                    <button
-                      type="button"
-                      onClick={() => navigate(routePaths.editDish(draft.id))}
-                      className="py-1"
-                    >
+                <header className="flex items-center justify-between border-b border-[#eee] px-3 py-2 text-sm text-[#555]">
+                  <span>草稿 {formatTime(draft.updatedAt)}</span>
+                  <span className="flex gap-4 font-medium text-[#ff5f15]">
+                    <button type="button" onClick={() => editDraft(draft.id)}>
                       编辑
                     </button>
                     <button
+                      className="font-medium"
                       type="button"
-                      onClick={() => setDeletingDraftId(draft.id)}
-                      className="py-1"
+                      onClick={() => setDeletingId(draft.id)}
                     >
                       删除
                     </button>
-                  </div>
+                  </span>
                 </header>
-
                 <div className="py-2.5">
-                  <div className="flex min-w-0 items-start px-3">
-                    <img
-                      src={getDraftImage(draft)}
-                      alt=""
-                      className="size-15 shrink-0 rounded-xl bg-stone-100 object-cover"
-                    />
-                    <div className="ml-2 min-w-0 flex-1 overflow-hidden">
-                      <h2 className="mb-1 truncate text-sm leading-5 font-semibold text-[#222222]">
-                        {draft.name}
-                      </h2>
-                      <p className="truncate text-xs leading-4 text-[#777777]">
-                        <span className="font-medium text-[#555555]">
-                          食材：
-                        </span>
-                        {draft.ingredients || "暂无"}
-                      </p>
-                      <p className="mt-0.5 truncate text-xs leading-4 text-[#777777]">
-                        <span className="font-medium text-[#555555]">
-                          配料：
-                        </span>
-                        {draft.seasonings || "暂无"}
-                      </p>
+                  {(draft.items ?? []).map((item, index) => (
+                    <div
+                      key={item.id}
+                      className={`flex items-start px-3 ${index < draft.items.length - 1 ? "pb-2.5" : ""}`}
+                    >
+                      <img
+                        src={item.image}
+                        alt=""
+                        className="size-15 shrink-0 rounded-md object-cover"
+                      />
+                      <div className="ml-2 min-w-0 flex-1">
+                        <h2 className="text-sm leading-5 font-semibold text-[#222]">
+                          {item.name}
+                        </h2>
+                        <p className="truncate text-[13px] leading-4.5 text-[#777]">
+                          <b className="text-[#555]">食材：</b>
+                          {item.ingredients || "暂无"}
+                        </p>
+                        <p className="truncate text-[13px] leading-4.5 text-[#777]">
+                          <b className="text-[#555]">配料：</b>
+                          {item.seasonings || "暂无"}
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </article>
             ))}
           </section>
         ) : (
-          <div className="pt-32 text-center text-sm text-[#999999]">
+          <div className="pt-32 text-center text-sm text-[#999]">
             暂无草稿订单
           </div>
         )}
       </Page.Content>
-
-      <AlertDialog
-        open={deletingDraftId !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setDeletingDraftId(null);
-          }
-        }}
-      >
-        <AlertDialogContent size="sm" className="gap-5 rounded-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>删除草稿</AlertDialogTitle>
-            <AlertDialogDescription>确认删除此草稿吗？</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="text-[#555555]">
-              取消
-            </AlertDialogCancel>
-            <AlertDialogAction
-              type="button"
-              onClick={handleDelete}
-              className="bg-[#ff5f15] text-white hover:bg-[#e85513]"
-            >
-              删除
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {deletingId && (
+        <div
+          className="absolute inset-0 z-50 grid place-items-center bg-black/40 px-8"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-80 rounded-2xl bg-white p-5 text-center">
+            <h2 className="text-base font-semibold text-[#222]">删除草稿</h2>
+            <p className="mt-2 text-sm text-[#777]">确认删除此草稿吗？</p>
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setDeletingId(null)}
+                className="h-10 rounded-full bg-[#f4f4f4] text-sm"
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  removeDraft(deletingId);
+                  setDeletingId(null);
+                }}
+                className="h-10 rounded-full bg-[#ff5f15] text-sm text-white"
+              >
+                删除
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Page>
   );
 }

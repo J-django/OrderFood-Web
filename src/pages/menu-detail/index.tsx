@@ -3,24 +3,14 @@ import { Navigate, useParams } from "react-router";
 import { Page } from "@/components";
 import { getMenuItem } from "@/constants";
 import { useDocumentTitle } from "@/hooks";
-
-interface InfoSectionProps {
-  title: string;
-  children: React.ReactNode;
-}
-
-function InfoSection({ title, children }: InfoSectionProps) {
-  return (
-    <section className="border-b border-stone-100 py-5 last:border-b-0">
-      <h2 className="text-sm font-bold text-stone-900">{title}</h2>
-      <div className="mt-2 text-sm leading-6 text-stone-600">{children}</div>
-    </section>
-  );
-}
+import { useDishStore } from "@/store";
 
 export default function MenuDetailPage() {
   const { itemId } = useParams();
-  const item = getMenuItem(itemId);
+  const userDish = useDishStore((state) =>
+    state.dishes.find((dish) => dish.id === itemId),
+  );
+  const item = userDish ?? getMenuItem(itemId);
   useDocumentTitle(item?.name ?? "菜品详情");
 
   if (!item) {
@@ -28,7 +18,7 @@ export default function MenuDetailPage() {
   }
 
   return (
-    <Page>
+    <Page className="bg-white">
       <Page.Header title="菜品详情" backTo="/" />
       <Page.Content>
         <motion.img
@@ -36,27 +26,35 @@ export default function MenuDetailPage() {
           animate={{ opacity: 1 }}
           src={item.image}
           alt={item.name}
-          className="aspect-[4/3] w-full bg-stone-100 object-cover"
+          className="mx-4 mt-4 aspect-4/3 w-[calc(100%-2rem)] rounded-2xl bg-stone-100 object-cover"
         />
-        <div className="px-5 pb-6">
-          <section className="border-b border-stone-100 py-5">
-            <div className="flex items-start justify-between gap-3">
-              <h2 className="text-xl font-bold text-stone-900">{item.name}</h2>
-              <span className="shrink-0 rounded bg-[#fff0d8] px-2 py-1 text-xs font-medium text-[#a75b16]">
-                {item.category}
-              </span>
-            </div>
+        <div className="px-4 pb-6">
+          <section className="pt-5">
+            <h2 className="text-xl leading-7 font-semibold text-[#222]">
+              {item.name}
+            </h2>
           </section>
 
-          <InfoSection title="食材">
-            <p>{item.ingredients}</p>
-          </InfoSection>
-          <InfoSection title="配料">
-            <p>{item.seasonings}</p>
-          </InfoSection>
-          <InfoSection title="做法">
-            <p>{item.method}</p>
-          </InfoSection>
+          <div className="mt-2 space-y-1 text-sm leading-5.5 text-[#777]">
+            <p className="text-[#555]">
+              <b className="font-semibold">品类：</b>
+              {item.category || "暂无"}
+            </p>
+            <p className="text-[#555]">
+              <b className="font-semibold">食材：</b>
+              {item.ingredients || "暂无"}
+            </p>
+            <p className="text-[#555]">
+              <b className="font-semibold">配料：</b>
+              {item.seasonings || "暂无"}
+            </p>
+            <div className="flex items-start">
+              <p className="shrink-0 font-semibold text-[#555]">做法：</p>
+              <p className="min-w-0 flex-1 whitespace-pre-wrap text-[#555]">
+                {item.method || "暂无"}
+              </p>
+            </div>
+          </div>
         </div>
       </Page.Content>
     </Page>

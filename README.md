@@ -6,7 +6,7 @@
 
 - Tailwind CSS v4
 - Shadcn UI
-- Shadcn Base UI + Rhea 全量组件（`src/components/ui`）
+- Shadcn Radix UI + Rhea 组件配置
 - Zustand
 - Motion
 - Iconify (`@iconify/json` + `@iconify/tailwind4`)

@@ -1,158 +1,149 @@
-import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
-import { Button, Page } from "@/components";
-import { routePaths } from "@/constants";
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router";
+import { Page } from "@/components";
+import { Button } from "@/components/ui/button";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { menuCategories, routePaths } from "@/constants";
 import { useDocumentTitle } from "@/hooks";
-import { useDraftStore } from "@/store";
+import { useDishStore } from "@/store";
+import type { MenuCategory } from "@/types";
 
-const fieldClassName =
-  "mt-2 h-11 w-full rounded-lg border border-stone-200 bg-white px-3 text-sm text-stone-900 outline-none transition-colors placeholder:text-stone-300 focus:border-stone-400";
+const dishCategories = menuCategories.filter(
+  (item): item is MenuCategory => item !== "全部",
+);
 
 export default function AddDishPage() {
   useDocumentTitle("添加菜品");
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const editingDraftId = searchParams.get("draft");
-  const editingDraft = useDraftStore((state) =>
-    state.drafts.find((draft) => draft.id === editingDraftId),
-  );
-  const saveDraft = useDraftStore((state) => state.saveDraft);
-  const updateDraft = useDraftStore((state) => state.updateDraft);
-  const [name, setName] = useState(editingDraft?.name ?? "");
-  const [category, setCategory] = useState(editingDraft?.category ?? "主食");
-  const [price, setPrice] = useState(
-    editingDraft ? String(editingDraft.price) : "",
-  );
-  const [ingredients, setIngredients] = useState(
-    editingDraft?.ingredients ?? "",
-  );
-  const [seasonings, setSeasonings] = useState(editingDraft?.seasonings ?? "");
-  const [method, setMethod] = useState(editingDraft?.method ?? "");
+  const addDish = useDishStore((state) => state.addDish);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [image, setImage] = useState("");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<MenuCategory | "">("");
+  const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function chooseImage(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setImage(String(reader.result));
+    reader.readAsDataURL(file);
+  }
+
+  function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const numericPrice = Number(price);
-
-    if (!name.trim() || !Number.isFinite(numericPrice) || numericPrice <= 0) {
+    if (!name.trim()) {
+      setError("请输入菜名");
       return;
     }
-
-    const draft = {
+    addDish({
+      id: crypto.randomUUID(),
       name: name.trim(),
-      category,
-      price: numericPrice,
-      ingredients: ingredients.trim(),
-      seasonings: seasonings.trim(),
-      method: method.trim(),
-    };
-
-    if (editingDraftId && editingDraft) {
-      updateDraft(editingDraftId, draft);
-    } else {
-      saveDraft(draft);
-    }
-
-    navigate(routePaths.drafts);
+      category: category || "其他",
+      price: 0,
+      image: image || "/images/menu/garden-salad.jpg",
+      ingredients: "",
+      seasonings: "",
+      method: description.trim(),
+    });
+    navigate(routePaths.home);
   }
 
   return (
     <Page className="bg-[#f8f8f8]">
-      <Page.Header
-        title={editingDraft ? "编辑菜品" : "添加菜品"}
-        backTo={editingDraft ? routePaths.drafts : routePaths.profile}
-      />
+      <Page.Header title="添加菜品" backTo={routePaths.profile} />
       <Page.Content>
-        <form
-          onSubmit={handleSubmit}
-          className="mt-3 space-y-5 bg-white px-5 py-5"
-        >
-          <label className="block text-sm font-semibold text-stone-700">
-            菜品名称
-            <input
-              required
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="例如：番茄炒蛋"
-              className={fieldClassName}
-            />
-          </label>
-
-          <label className="block text-sm font-semibold text-stone-700">
-            分类
-            <select
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
-              className={fieldClassName}
-            >
-              <option>主食</option>
-              <option>小吃</option>
-              <option>饮品</option>
-              <option>其他</option>
-            </select>
-          </label>
-
-          <label className="block text-sm font-semibold text-stone-700">
-            价格
-            <div className="relative">
-              <span className="absolute top-1/2 left-3 mt-1 -translate-y-1/2 text-sm text-stone-400">
-                ¥
-              </span>
-              <input
-                required
-                min="0.01"
-                step="0.01"
-                inputMode="decimal"
-                type="number"
-                value={price}
-                onChange={(event) => setPrice(event.target.value)}
-                placeholder="0.00"
-                className={`${fieldClassName} pl-7`}
+        <form onSubmit={submit} className="p-3.5">
+          <Input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={chooseImage}
+          />
+          <Button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="flex h-45 w-full flex-col items-center justify-center overflow-hidden rounded-2xl bg-white text-sm text-[#999]"
+          >
+            {image ? (
+              <img
+                src={image}
+                alt="菜品预览"
+                className="size-full object-cover"
               />
-            </div>
-          </label>
-
-          <label className="block text-sm font-semibold text-stone-700">
-            食材
-            <textarea
-              rows={3}
-              value={ingredients}
-              onChange={(event) => setIngredients(event.target.value)}
-              placeholder="例如：番茄、鸡蛋、葱"
-              className="mt-2 w-full resize-none rounded-lg border border-stone-200 bg-white px-3 py-3 text-sm text-stone-900 transition-colors outline-none placeholder:text-stone-300 focus:border-stone-400"
-            />
-          </label>
-
-          <label className="block text-sm font-semibold text-stone-700">
-            配料
-            <textarea
-              rows={3}
-              value={seasonings}
-              onChange={(event) => setSeasonings(event.target.value)}
-              placeholder="例如：盐、生抽、白糖"
-              className="mt-2 w-full resize-none rounded-lg border border-stone-200 bg-white px-3 py-3 text-sm text-stone-900 transition-colors outline-none placeholder:text-stone-300 focus:border-stone-400"
-            />
-          </label>
-
-          <label className="block text-sm font-semibold text-stone-700">
-            做法
-            <textarea
-              rows={5}
-              value={method}
-              onChange={(event) => setMethod(event.target.value)}
-              placeholder="填写菜品的制作步骤"
-              className="mt-2 w-full resize-none rounded-lg border border-stone-200 bg-white px-3 py-3 text-sm text-stone-900 transition-colors outline-none placeholder:text-stone-300 focus:border-stone-400"
-            />
-          </label>
-
+            ) : (
+              <>
+                <span className="icon-[lucide--plus] size-7" />
+                <span className="mt-2">选择菜品图片</span>
+              </>
+            )}
+          </Button>
+          <Input
+            value={name}
+            onChange={(event) => {
+              setName(event.target.value);
+              setError("");
+            }}
+            placeholder="菜名"
+            className="mt-2.5 h-10.5 w-full rounded-lg border-none bg-white px-3 text-sm outline-none placeholder:text-[#999]"
+          />
+          <Textarea
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            rows={5}
+            placeholder="菜品描述"
+            className="mt-2.5 min-h-20 w-full resize-none rounded-xl border-none bg-white px-3 py-2.5 text-sm leading-5 outline-none placeholder:text-[#999]"
+          />
+          <Button
+            type="button"
+            onClick={() => setCategoryDrawerOpen(true)}
+            className="mt-2.5 flex h-10.5 w-full items-center justify-between rounded-xl border-none bg-white px-3 text-left text-sm"
+          >
+            <span className={category ? "text-[#222]" : "text-[#999]"}>
+              {category || "菜品类"}
+            </span>
+            <span className="icon-[lucide--chevron-right] size-4 text-[#999]" />
+          </Button>
+          {error && <p className="mt-2 text-xs text-[#e53e20]">{error}</p>}
           <Button
             type="submit"
-            className="h-11 w-full bg-[#ff5a36] text-white hover:bg-[#ed4927]"
+            className="mt-5 h-10.5 w-full rounded-full bg-[#ff5f15] text-sm font-semibold text-white"
           >
-            <span className="icon-[lucide--save] size-4" />
-            {editingDraft ? "保存修改" : "保存到草稿"}
+            保存菜品
           </Button>
         </form>
       </Page.Content>
+      <Drawer open={categoryDrawerOpen} onOpenChange={setCategoryDrawerOpen}>
+        <DrawerContent className="!rounded-b-none bg-white [--drawer-inset:0rem]">
+          <div className="px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
+            {dishCategories.map((item) => {
+              const selected = category === item;
+              return (
+                <Button
+                  key={item}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => {
+                    setCategory(item);
+                    setCategoryDrawerOpen(false);
+                  }}
+                  className="flex h-12 w-full items-center justify-between border-b border-[#f0f0f0] text-left text-sm text-[#222] last:border-b-0"
+                >
+                  <span>{item}</span>
+                  {selected && (
+                    <span className="icon-[lucide--check] size-5 text-[#ff5f15]" />
+                  )}
+                </Button>
+              );
+            })}
+          </div>
+        </DrawerContent>
+      </Drawer>
     </Page>
   );
 }

@@ -58,7 +58,7 @@ export function FoodCard({ item, selected, keyword, onToggle }: FoodCardProps) {
   return (
     <article
       className={cn(
-        "relative flex w-full min-w-0 items-start overflow-hidden border-b border-[#f0f0f0] p-[10px] transition-colors last:border-b-0",
+        "relative flex w-full min-w-0 items-start overflow-hidden border-b border-[#f0f0f0] p-2.5 transition-colors last:border-b-0",
         selected && "bg-[#fff8f4]",
       )}
     >
@@ -71,11 +71,11 @@ export function FoodCard({ item, selected, keyword, onToggle }: FoodCardProps) {
         src={item.image}
         alt={item.name}
         loading="lazy"
-        className="size-[68px] shrink-0 rounded-xl bg-stone-100 object-cover"
+        className="size-17 shrink-0 rounded-xl bg-stone-100 object-cover"
       />
       <div className="ml-2 min-w-0 flex-1">
         <div className="flex w-full items-start">
-          <h3 className="mb-[3px] min-w-0 flex-1 text-base leading-[22px] font-semibold text-[#222]">
+          <h3 className="mb-1 min-w-0 flex-1 text-base leading-5.5 font-semibold text-[#222]">
             <HighlightedText text={item.name} keyword={keyword} />
           </h3>
           <button
@@ -83,9 +83,20 @@ export function FoodCard({ item, selected, keyword, onToggle }: FoodCardProps) {
             aria-label={selected ? `取消选择${item.name}` : `选择${item.name}`}
             aria-pressed={selected}
             onClick={handleToggle}
-            className="text-2xs relative z-10 ml-1.5 flex h-6 min-w-10 shrink-0 translate-x-0.5 -translate-y-0.5 items-center justify-center rounded-full bg-[#ff5f15] px-2 leading-none text-white transition-colors active:bg-[#e94f0b]"
+            className={cn(
+              "relative z-10 ml-1.5 flex size-5 shrink-0 translate-x-0.5 -translate-y-0.5 items-center justify-center rounded-full text-white transition-colors",
+              selected
+                ? "bg-[#999] active:bg-[#777]"
+                : "bg-[#ff5f15] active:bg-[#e94f0b]",
+            )}
           >
-            {selected ? "已选" : "想要"}
+            <span
+              className={cn(
+                selected ? "icon-[lucide--minus]" : "icon-[lucide--plus]",
+                "size-4",
+              )}
+              aria-hidden="true"
+            />
           </button>
         </div>
         <DetailLine label="食材" value={item.ingredients} keyword={keyword} />

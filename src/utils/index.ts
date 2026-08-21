@@ -1,1 +1,5 @@
 export * from './modules/dom'
+export * from './modules/auth'
+export * from './modules/device-id'
+export * from './modules/env'
+export * from './modules/storage'

@@ -1,4 +1,4 @@
-export type MenuCategory = '主食' | '小吃' | '饮品'
+export type MenuCategory = "主食" | "小吃" | "饮品" | "其他";
 
 export interface MenuItem {
   id: string

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { useNavigate } from "react-router";
 import { FoodCard } from "@/components";
 import {
   InputGroup,
@@ -7,9 +8,9 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { menuCategories, menuItems } from "@/constants";
+import { menuCategories, menuItems, routePaths } from "@/constants";
 import { useDocumentTitle } from "@/hooks";
-import { useCartStore } from "@/store";
+import { useCartStore, useDishStore, useDraftStore } from "@/store";
 import { cn } from "@/utils";
 import type { MenuCategory } from "@/types";
 
@@ -19,6 +20,12 @@ const categoryTabs = menuCategories.filter(
 
 export default function HomePage() {
   useDocumentTitle("菜单");
+  const navigate = useNavigate();
+  const userDishes = useDishStore((state) => state.dishes);
+  const allMenuItems = useMemo(
+    () => [...userDishes, ...menuItems],
+    [userDishes],
+  );
   const [activeCategory, setActiveCategory] = useState<MenuCategory>(
     categoryTabs[0],
   );
@@ -27,6 +34,8 @@ export default function HomePage() {
   const selectedItems = useCartStore((state) => state.items);
   const toggleItem = useCartStore((state) => state.toggleItem);
   const clearSelected = useCartStore((state) => state.clear);
+  const saveDraft = useDraftStore((state) => state.saveDraft);
+  const updateDraft = useDraftStore((state) => state.updateDraft);
   const selectedIds = useMemo(
     () => new Set(selectedItems.map((item) => item.id)),
     [selectedItems],
@@ -35,7 +44,7 @@ export default function HomePage() {
   const visibleItems = useMemo(() => {
     const normalizedKeyword = keyword.trim().toLocaleLowerCase();
 
-    return menuItems.filter((item) => {
+    return allMenuItems.filter((item) => {
       if (!normalizedKeyword) {
         return item.category === activeCategory;
       }
@@ -45,7 +54,7 @@ export default function HomePage() {
         .toLocaleLowerCase()
         .includes(normalizedKeyword);
     });
-  }, [activeCategory, keyword]);
+  }, [activeCategory, allMenuItems, keyword]);
   const listStateKey = keyword.trim() ? "search" : activeCategory;
 
   function handleClearSelected() {
@@ -53,9 +62,27 @@ export default function HomePage() {
     clearSelected();
   }
 
+  function handleSaveDraft() {
+    const editingDraftId = localStorage.getItem("order-food-editing-draft");
+    if (editingDraftId) {
+      updateDraft(editingDraftId, selectedItems);
+      localStorage.removeItem("order-food-editing-draft");
+    } else {
+      saveDraft(selectedItems);
+    }
+    clearSelected();
+    setShowSelected(false);
+    navigate(routePaths.drafts);
+  }
+
+  function handleOrder() {
+    localStorage.removeItem("order-food-editing-draft");
+    navigate(routePaths.orderConfirm);
+  }
+
   return (
-    <div className="relative flex h-[calc(100dvh-64px-env(safe-area-inset-bottom))] min-h-[480px] flex-col overflow-hidden bg-white">
-      <header className="shrink-0 bg-white px-2.5 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-2.5">
+    <div className="relative flex h-[calc(100dvh-3.5rem-env(safe-area-inset-bottom))] min-h-120 flex-col overflow-hidden bg-white">
+      <header className="flex h-14 shrink-0 items-end bg-white px-2 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-2">
         <InputGroup className="h-9 rounded-full border-0 bg-[#f3f3f3] shadow-none">
           <InputGroupAddon align="inline-start" className="pl-2 text-[#999]">
             <span className="icon-[lucide--search] size-5" aria-hidden="true" />
@@ -66,7 +93,7 @@ export default function HomePage() {
             onChange={(event) => setKeyword(event.target.value)}
             placeholder="搜索菜名、食材、配料"
             aria-label="搜索菜品"
-            className="h-auto bg-transparent text-sm text-[#333] placeholder:text-[#aaa]"
+            className="h-auto bg-transparent text-sm text-[#333] placeholder:text-[#aaa] [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none"
           />
           {keyword && (
             <InputGroupAddon align="inline-end" className="pr-1">
@@ -77,7 +104,7 @@ export default function HomePage() {
                 onClick={() => setKeyword("")}
                 className="text-[#999] hover:text-[#555]"
               >
-                <span className="icon-[lucide--circle-x] size-[18px]" />
+                <span className="icon-[lucide--circle-x] size-5" />
               </InputGroupButton>
             </InputGroupAddon>
           )}
@@ -86,7 +113,10 @@ export default function HomePage() {
 
       <div className="flex min-h-0 flex-1">
         <aside
-          className="h-full w-[100px] shrink-0 overflow-y-auto rounded-tr-xl bg-[#f8f8f8]"
+          className={cn(
+            "h-full w-25 shrink-0 overflow-y-auto bg-[#f8f8f8]",
+            selectedItems.length > 0 && "pb-14",
+          )}
           aria-label="菜品分类"
         >
           {categoryTabs.map((category) => {
@@ -99,9 +129,8 @@ export default function HomePage() {
                 aria-pressed={isActive}
                 onClick={() => setActiveCategory(category)}
                 className={cn(
-                  "block h-12 w-full truncate border-l-[3px] border-transparent px-3 text-left text-sm leading-[48px] font-normal text-[#555] transition-colors",
-                  isActive &&
-                    "border-l-[#ff5f15] bg-white font-semibold text-[#ff5f15]",
+                  "block h-12 w-full truncate border-l-3 border-transparent px-3 text-left text-sm leading-12 font-bold text-[#555] transition-colors",
+                  isActive && "border-l-[#ff5f15] bg-white text-[#ff5f15]",
                 )}
               >
                 {category}
@@ -113,7 +142,7 @@ export default function HomePage() {
         <section
           className={cn(
             "min-w-0 flex-1 overflow-y-auto bg-white",
-            selectedItems.length > 0 && "pb-[65px]",
+            selectedItems.length > 0 && "pb-14",
           )}
           aria-label="菜品列表"
         >
@@ -123,7 +152,7 @@ export default function HomePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1, pointerEvents: "auto" }}
               exit={{ opacity: 0, pointerEvents: "none" }}
-              transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+              transition={{ duration: 0.15, ease: "easeInOut" }}
             >
               {visibleItems.length > 0 ? (
                 visibleItems.map((item) => (
@@ -136,7 +165,7 @@ export default function HomePage() {
                   />
                 ))
               ) : (
-                <div className="grid min-h-40 place-items-center px-5 text-center text-[13px] text-[#999]">
+                <div className="text-3 grid min-h-40 place-items-center px-5 text-center text-[#999]">
                   未找到相关菜品
                 </div>
               )}
@@ -164,7 +193,7 @@ export default function HomePage() {
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
-              className="absolute inset-x-0 bottom-[55px] z-30 max-h-[310px] overflow-hidden rounded-t-xl bg-white"
+              className="absolute inset-x-0 bottom-14 z-30 max-h-77.5 overflow-hidden rounded-t-xl bg-white"
             >
               <header className="flex items-center justify-between px-4 pt-3.5 pb-2.5">
                 <h2
@@ -176,12 +205,12 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={handleClearSelected}
-                  className="text-xs text-[#ff5f15]"
+                  className="text-[13px] font-medium text-[#ff5f15]"
                 >
                   清空
                 </button>
               </header>
-              <div className="max-h-[255px] overflow-y-auto pb-2.5">
+              <div className="max-h-64 overflow-y-auto px-3 pb-2.5">
                 {selectedItems.map((item) => (
                   <button
                     key={item.id}
@@ -190,18 +219,18 @@ export default function HomePage() {
                       setActiveCategory(item.category);
                       setShowSelected(false);
                     }}
-                    className="flex w-full items-start border-b border-[#f0f0f0] px-3 py-2.5 text-left last:border-b-0"
+                    className="flex w-full items-start border-b border-[#f0f0f0] py-2.5 text-left last:border-b-0"
                   >
                     <img
                       src={item.image}
                       alt=""
-                      className="size-[60px] shrink-0 rounded-[10px] object-cover"
+                      className="size-15 shrink-0 rounded-md object-cover"
                     />
                     <span className="ml-2 min-w-0 flex-1">
-                      <span className="block text-base leading-[22px] font-semibold text-[#222]">
+                      <span className="block text-base leading-5.5 font-semibold text-[#222]">
                         {item.name}
                       </span>
-                      <span className="mt-[3px] block text-xs leading-4 text-[#777]">
+                      <span className="mt-1 block text-xs leading-4 text-[#777]">
                         <span className="font-medium text-[#555]">食材：</span>
                         {item.ingredients}
                       </span>
@@ -224,7 +253,10 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 12 }}
-            className="absolute inset-x-0 bottom-0 z-40 flex h-[55px] items-center gap-2 bg-white px-3 text-sm shadow-[0_-1px_8px_rgba(0,0,0,0.08)]"
+            className={cn(
+              "absolute inset-x-0 bottom-0 z-40 flex h-14 items-center gap-2 bg-white px-3 text-sm transition-shadow duration-200",
+              !showSelected && "shadow-[0_-0.0625rem_0.5rem_rgba(0,0,0,0.08)]",
+            )}
           >
             <button
               type="button"
@@ -236,13 +268,15 @@ export default function HomePage() {
             <div className="flex shrink-0 overflow-hidden rounded-full">
               <button
                 type="button"
-                className="h-[34px] bg-[#fff1e9] px-3.5 text-[13px] text-[#ff5f15] active:bg-[#ffe5d6]"
+                onClick={handleSaveDraft}
+                className="h-8.5 bg-[#fff1e9] px-3.5 text-sm font-bold text-[#ff5f15] active:bg-[#ffe5d6]"
               >
                 存草稿
               </button>
               <button
                 type="button"
-                className="h-[34px] bg-[#ff5f15] px-3.5 text-[13px] text-white active:bg-[#e94f0b]"
+                onClick={handleOrder}
+                className="h-8.5 bg-[#ff5f15] px-3.5 text-sm font-bold text-white active:bg-[#e94f0b]"
               >
                 下单
               </button>

@@ -1,6 +1,6 @@
 import type { MenuCategory, MenuItem } from '@/types'
 
-export const menuCategories = ['全部', '主食', '小吃', '饮品'] as const
+export const menuCategories = ['全部', '主食', '小吃', '饮品', '其他'] as const
 
 export type MenuCategoryFilter = (typeof menuCategories)[number]
 

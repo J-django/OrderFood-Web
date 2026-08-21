@@ -1,10 +1,8 @@
-export interface DishDraft {
-  id: string
-  name: string
-  category: string
-  price: number
-  ingredients: string
-  seasonings: string
-  method: string
-  updatedAt: string
+import type { CartItem } from "./menu";
+
+export interface MenuDraft {
+  id: string;
+  items: CartItem[];
+  createdAt: string;
+  updatedAt: string;
 }

@@ -7,7 +7,7 @@ function Page({ className, ...props }: PageProps) {
     <div
       data-slot="page"
       className={cn(
-        "flex h-[calc(100dvh-68px-env(safe-area-inset-bottom))] min-h-0 w-full flex-col overflow-hidden bg-white",
+        "flex h-[calc(100dvh-3.5rem-env(safe-area-inset-bottom))] min-h-0 w-full flex-col overflow-hidden bg-white",
         className,
       )}
       {...props}
@@ -39,14 +39,14 @@ function PageHeader({
     <header
       data-slot="page-header"
       className={cn(
-        "h-[calc(56px+env(safe-area-inset-top))] shrink-0 border-b border-stone-100 bg-white px-3 pt-[env(safe-area-inset-top)]",
+        "h-[calc(3.5rem+env(safe-area-inset-top))] shrink-0 border-b border-stone-100 bg-white px-1 pt-[env(safe-area-inset-top)]",
         className,
       )}
       {...props}
     >
       <nav
         aria-label={`${title}页面导航`}
-        className="grid h-14 grid-cols-[40px_minmax(0,1fr)_40px] items-center"
+        className="grid h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center"
       >
         <button
           type="button"
@@ -54,9 +54,9 @@ function PageHeader({
           onClick={handleBack}
           className="grid size-10 place-items-center rounded-full text-stone-700 transition-colors hover:bg-stone-100 active:bg-stone-200"
         >
-          <span className="icon-[lucide--chevron-left] size-5" />
+          <span className="icon-[lucide--chevron-left] size-6.5" />
         </button>
-        <h1 className="truncate text-center text-[17px] font-bold text-stone-900">
+        <h1 className="text-4 truncate text-center font-bold text-stone-900">
           {title}
         </h1>
         <div className="flex size-10 items-center justify-center">

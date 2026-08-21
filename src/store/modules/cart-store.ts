@@ -6,6 +6,7 @@ interface CartStore {
   items: CartItem[];
   addItem: (item: MenuItem) => void;
   toggleItem: (item: MenuItem) => void;
+  setItems: (items: CartItem[]) => void;
   clear: () => void;
 }
 
@@ -39,6 +40,7 @@ export const useCartStore = create<CartStore>()(
               : [...state.items, { ...item, quantity: 1 }],
           };
         }),
+      setItems: (items) => set({ items }),
       clear: () => set({ items: [] }),
     }),
     {

@@ -1,8 +1,6 @@
-import { apiClient } from './modules/client'
-
 export * from './endpoints/menu'
-export { apiClient }
-
-export function initializeApiClient() {
-  apiClient.defaults.baseURL = import.meta.env.VITE_API_BASE_URL
-}
+export * from './modules/cancel'
+export * from './modules/client'
+export * from './modules/methods'
+export * from './modules/request'
+export * from './modules/error-notification'

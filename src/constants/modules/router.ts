@@ -11,6 +11,7 @@ export const routePaths = {
   menu: menuPath,
   menuDetail: (itemId: string) => `${menuPath}/${encodeURIComponent(itemId)}`,
   drafts: "/drafts",
+  orderConfirm: "/order/confirm",
   profile: profilePath,
   families: familiesPath,
   familyDetail: (familyId: string) =>
@@ -40,6 +41,11 @@ export const routeConfigs: RouteConfig[] = [
         path: "drafts",
         load: lazyPage(() => import("@/pages/drafts")),
         handle: { title: "草稿" },
+      },
+      {
+        path: "order/confirm",
+        load: lazyPage(() => import("@/pages/order-confirm")),
+        handle: { title: "订单确认" },
       },
       {
         path: "profile",
