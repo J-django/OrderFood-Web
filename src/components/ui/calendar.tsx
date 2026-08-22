@@ -9,8 +9,7 @@ import {
   ChevronDownIcon,
 } from "lucide-react";
 import { DayPicker, getDefaultClassNames } from "react-day-picker";
-import { useTranslation } from "react-i18next";
-import { cn, getDateFnsLocale } from "@/utils";
+import { cn } from "@/utils";
 import type { DayButton, Locale } from "react-day-picker";
 
 const calendarNavButtonVariants = cva(
@@ -49,9 +48,7 @@ function Calendar({
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"];
 }) {
-  const { i18n } = useTranslation();
   const defaultClassNames = getDefaultClassNames();
-  const resolvedLocale = locale ?? getDateFnsLocale(i18n.language);
 
   return (
     <DayPicker
@@ -63,12 +60,7 @@ function Calendar({
         className,
       )}
       captionLayout={captionLayout}
-      locale={resolvedLocale}
-      formatters={{
-        formatMonthDropdown: (date) =>
-          date.toLocaleString(resolvedLocale?.code, { month: "short" }),
-        ...formatters,
-      }}
+      formatters={{ ...formatters }}
       classNames={{
         root: cn("w-fit", defaultClassNames.root),
         months: cn(
@@ -189,9 +181,7 @@ function Calendar({
             <ChevronDownIcon className={cn("size-4", className)} {...props} />
           );
         },
-        DayButton: ({ ...props }) => (
-          <CalendarDayButton locale={resolvedLocale} {...props} />
-        ),
+        DayButton: ({ ...props }) => <CalendarDayButton {...props} />,
         WeekNumber: ({ children, ...props }) => {
           return (
             <td {...props}>
