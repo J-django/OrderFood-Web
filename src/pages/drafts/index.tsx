@@ -1,11 +1,23 @@
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { useNavigate } from "react-router";
 import { deleteDraft, getDrafts } from "@/api/endpoints/drafts";
+import {
+  createMemo,
+  deleteMemo,
+  getMemos,
+  updateMemo,
+} from "@/api/endpoints/memos";
 import { draftToMenuDraft } from "@/api/endpoints/adapters";
-import { FoodCard, Page } from "@/components";
+import { Dialog, FoodCard, Page } from "@/components";
+import { Segmented } from "@/components/segmented";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { routePaths } from "@/constants";
 import { useDocumentTitle } from "@/hooks";
-import { useCartStore, useFamilyStore } from "@/store";
+import { toast } from "@/components/ui/toast";
+import { useCartStore, useFamilyStore, useUserStore } from "@/store";
+import type { ApiMemo } from "@/types";
 
 function formatTime(value: string) {
   const date = new Date(value);
@@ -17,25 +29,36 @@ export default function DraftsPage() {
   useDocumentTitle("草稿");
   const navigate = useNavigate();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const user = useUserStore((state) => state.user);
   const setItems = useCartStore((state) => state.setItems);
   const [drafts, setDrafts] = useState<ReturnType<typeof draftToMenuDraft>[]>(
     [],
   );
+  const [memos, setMemos] = useState<ApiMemo[]>([]);
+  const [activeTab, setActiveTab] = useState("drafts");
   const [loadedFamilyId, setLoadedFamilyId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [memoEditor, setMemoEditor] = useState<ApiMemo | "new" | null>(null);
+  const [memoName, setMemoName] = useState("");
+  const [memoContent, setMemoContent] = useState("");
+  const [memoSubmitting, setMemoSubmitting] = useState(false);
+  const [deletingMemoId, setDeletingMemoId] = useState<string | null>(null);
+  const [deletingMemo, setDeletingMemo] = useState(false);
 
   useEffect(() => {
     if (!currentFamilyId) return;
     let cancelled = false;
-    getDrafts()
-      .then((result) => {
-        if (!cancelled) {
-          setDrafts((result.items ?? []).map(draftToMenuDraft));
-        }
+    Promise.all([getDrafts(), getMemos()])
+      .then(([draftResult, memoResult]) => {
+        if (cancelled) return;
+        setDrafts((draftResult.items ?? []).map(draftToMenuDraft));
+        setMemos(memoResult.items ?? []);
       })
       .catch(() => {
-        if (!cancelled) setDrafts([]);
+        if (cancelled) return;
+        setDrafts([]);
+        setMemos([]);
       })
       .finally(() => {
         if (!cancelled) setLoadedFamilyId(currentFamilyId);
@@ -45,7 +68,8 @@ export default function DraftsPage() {
     };
   }, [currentFamilyId]);
 
-  const loading = Boolean(currentFamilyId) && loadedFamilyId !== currentFamilyId;
+  const loading =
+    Boolean(currentFamilyId) && loadedFamilyId !== currentFamilyId;
 
   async function handleDelete() {
     if (!deletingId || deleting) return;
@@ -69,8 +93,92 @@ export default function DraftsPage() {
     navigate(routePaths.home);
   }
 
+  function openMemoEditor(memo?: ApiMemo) {
+    setMemoEditor(memo ?? "new");
+    setMemoName(memo?.name ?? "");
+    setMemoContent(memo?.content ?? "");
+  }
+
+  function closeMemoEditor() {
+    setMemoEditor(null);
+    setMemoName("");
+    setMemoContent("");
+  }
+
+  async function handleSaveMemo() {
+    const name = memoName.trim();
+    const content = memoContent.trim();
+    if (!name || !content || !memoEditor || memoSubmitting) {
+      if (!name || !content) {
+        toast.add({ type: "error", title: "请输入备忘录标题和内容" });
+      }
+      return;
+    }
+    setMemoSubmitting(true);
+    try {
+      if (memoEditor === "new") {
+        const memo = await createMemo({ name, content });
+        setMemos((current) => [memo, ...current]);
+        toast.add({ type: "success", title: "备忘录已添加" });
+      } else {
+        const memo = await updateMemo(memoEditor.id, { name, content });
+        setMemos((current) =>
+          current.map((item) => (item.id === memo.id ? memo : item)),
+        );
+        toast.add({ type: "success", title: "备忘录已保存" });
+      }
+      closeMemoEditor();
+    } catch {
+      /* 全局错误提示已处理 */
+    } finally {
+      setMemoSubmitting(false);
+    }
+  }
+
+  async function handleDeleteMemo() {
+    if (!deletingMemoId || deletingMemo) return;
+    setDeletingMemo(true);
+    try {
+      await deleteMemo(deletingMemoId);
+      setMemos((current) =>
+        current.filter((memo) => memo.id !== deletingMemoId),
+      );
+      toast.add({ type: "success", title: "备忘录已删除" });
+      setDeletingMemoId(null);
+    } catch {
+      /* 全局错误提示已处理 */
+    } finally {
+      setDeletingMemo(false);
+    }
+  }
+
   return (
     <Page className="bg-[#f8f8f8]">
+      <Page.Header
+        showBack={false}
+        trailing={
+          activeTab === "memos" ? (
+            <button
+              type="button"
+              aria-label="添加备忘录"
+              onClick={() => openMemoEditor()}
+              className="hover:bg-muted-foreground/15 active:bg-muted-foreground/15 grid size-10 place-items-center rounded-full transition-colors select-none"
+            >
+              <span className="icon-[tabler--plus] size-5.5" />
+            </button>
+          ) : null
+        }
+        title={
+          <Segmented
+            value={activeTab}
+            onValueChange={setActiveTab}
+            aria-label="内容类型"
+          >
+            <Segmented.Item value="drafts">草稿</Segmented.Item>
+            <Segmented.Item value="memos">备忘录</Segmented.Item>
+          </Segmented>
+        }
+      />
       <Page.Content>
         {!currentFamilyId ? (
           <div className="pt-32 text-center text-sm text-[#999]">
@@ -78,47 +186,110 @@ export default function DraftsPage() {
           </div>
         ) : loading ? (
           <div className="pt-32 text-center text-sm text-[#999]">加载中…</div>
-        ) : drafts.length ? (
-          <section className="space-y-2.5 p-2.5" aria-label="草稿列表">
-            {drafts.map((draft) => (
-              <article
-                key={draft.id}
-                className="overflow-hidden rounded-xl bg-white"
-              >
-                <header className="flex items-center justify-between border-b border-[#f0f0f0] px-3 py-2 text-sm text-[#555]">
-                  <span>
-                    草稿{draft.name ? `「${draft.name}」` : " "}
-                    {formatTime(draft.updatedAt)}
-                  </span>
-                  <span className="flex gap-4 font-medium text-(--theme-color)">
-                    <button type="button" onClick={() => editDraft(draft.id)}>
-                      编辑
-                    </button>
-                    <button
-                      className="font-medium"
-                      type="button"
-                      onClick={() => setDeletingId(draft.id)}
-                    >
-                      删除
-                    </button>
-                  </span>
-                </header>
-                {(draft.items ?? []).map((item) => (
-                  <FoodCard
-                    key={item.id}
-                    item={item}
-                    imageSize="md"
-                    truncateDetail
-                    emptyDetailText="暂无"
-                  />
-                ))}
-              </article>
-            ))}
-          </section>
         ) : (
-          <div className="pt-32 text-center text-sm text-[#999]">
-            暂无草稿订单
-          </div>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, pointerEvents: "auto" }}
+              exit={{ opacity: 0, pointerEvents: "none" }}
+              transition={{ duration: 0.15, ease: "easeInOut" }}
+              className="min-h-full"
+            >
+              {activeTab === "drafts" ? (
+                drafts.length ? (
+                  <section className="space-y-2.5 p-2.5" aria-label="草稿列表">
+                    {drafts.map((draft) => (
+                      <article
+                        key={draft.id}
+                        className="overflow-hidden rounded-xl bg-white"
+                      >
+                        <header className="flex items-center justify-between border-b border-[#f0f0f0] px-3 py-2 text-sm text-[#555]">
+                          <span>
+                            草稿{draft.name ? `「${draft.name}」` : " "}
+                            {formatTime(draft.updatedAt)}
+                          </span>
+                          <span className="flex gap-4 font-medium text-(--theme-color)">
+                            <button
+                              type="button"
+                              onClick={() => editDraft(draft.id)}
+                            >
+                              编辑
+                            </button>
+                            <button
+                              className="font-medium"
+                              type="button"
+                              onClick={() => setDeletingId(draft.id)}
+                            >
+                              删除
+                            </button>
+                          </span>
+                        </header>
+                        {(draft.items ?? []).map((item) => (
+                          <FoodCard
+                            key={item.id}
+                            item={item}
+                            imageSize="md"
+                            truncateDetail
+                            emptyDetailText="暂无"
+                          />
+                        ))}
+                      </article>
+                    ))}
+                  </section>
+                ) : (
+                  <div className="pt-32 text-center text-sm text-[#999]">
+                    暂无草稿订单
+                  </div>
+                )
+              ) : memos.length ? (
+                <section className="space-y-2.5 p-2.5" aria-label="备忘录列表">
+                  {memos.map((memo) => (
+                    <article
+                      key={memo.id}
+                      className="rounded-xl bg-white px-3 py-3"
+                    >
+                      <header className="flex items-center justify-between gap-3">
+                        <h2 className="min-w-0 truncate text-sm font-semibold text-[#333]">
+                          {memo.name}
+                        </h2>
+                        <div className="flex shrink-0 items-center gap-3">
+                          <button
+                            type="button"
+                            aria-label={`编辑${memo.name}`}
+                            onClick={() => openMemoEditor(memo)}
+                            className="text-xs font-medium text-(--theme-color)"
+                          >
+                            编辑
+                          </button>
+                          {memo.userId === user?.id && (
+                            <button
+                              type="button"
+                              aria-label={`删除${memo.name}`}
+                              onClick={() => setDeletingMemoId(memo.id)}
+                              className="text-xs font-medium text-(--theme-color)"
+                            >
+                              删除
+                            </button>
+                          )}
+                          <time className="text-xs text-[#999]">
+                            {formatTime(memo.updatedAt)}
+                          </time>
+                        </div>
+                      </header>
+                      <p className="mt-2 truncate text-sm leading-5 whitespace-pre-wrap text-[#666]">
+                        {memo.content}
+                      </p>
+                    </article>
+                  ))}
+                </section>
+              ) : (
+                <div className="pt-32 text-center text-sm text-[#999]">
+                  暂无备忘录
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
         )}
       </Page.Content>
       {deletingId && (
@@ -149,6 +320,48 @@ export default function DraftsPage() {
           </div>
         </div>
       )}
+      <Dialog
+        open={memoEditor !== null}
+        title={memoEditor === "new" ? "添加备忘录" : "编辑备忘录"}
+        showCancel
+        confirmText={memoSubmitting ? "保存中…" : "保存"}
+        maskClosable={false}
+        classes={{
+          content: "space-y-2.5 px-3 pt-3 pb-1 text-left",
+          confirmButton: "bg-(--theme-color)/10 text-(--theme-color)",
+        }}
+        onConfirm={() => void handleSaveMemo()}
+        onCancel={closeMemoEditor}
+        onClose={closeMemoEditor}
+      >
+        <Input
+          value={memoName}
+          onChange={(event) => setMemoName(event.target.value)}
+          placeholder="标题"
+          maxLength={120}
+          className="h-10 rounded-lg border-none bg-[#f3f3f3] px-3 text-sm outline-none"
+        />
+        <Textarea
+          value={memoContent}
+          onChange={(event) => setMemoContent(event.target.value)}
+          placeholder="内容"
+          maxLength={10000}
+          rows={6}
+          className="min-h-28 resize-none rounded-lg border-none bg-[#f3f3f3] px-3 py-2.5 text-sm outline-none"
+        />
+      </Dialog>
+      <Dialog
+        open={Boolean(deletingMemoId)}
+        title="删除备忘录"
+        content="确认删除此备忘录吗？"
+        showCancel
+        confirmText={deletingMemo ? "删除中…" : "删除"}
+        maskClosable={false}
+        classes={{ confirmButton: "bg-(--theme-color) text-white" }}
+        onConfirm={() => void handleDeleteMemo()}
+        onCancel={() => setDeletingMemoId(null)}
+        onClose={() => setDeletingMemoId(null)}
+      />
     </Page>
   );
 }

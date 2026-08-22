@@ -28,6 +28,18 @@ export interface ApiFamily {
   isDefault?: boolean;
 }
 
+export interface ApiFamilyMember {
+  id: string;
+  name: string;
+  phone: string;
+  joinedAt: string;
+}
+
+export interface ApiFamilyDetail extends ApiFamily {
+  owner: ApiOwner;
+  members: ApiFamilyMember[];
+}
+
 export interface ApiDish {
   id: string;
   familyId: string;
@@ -58,6 +70,16 @@ export interface ApiDraft {
   createdAt: string;
   updatedAt: string;
   menu?: ApiDish[];
+}
+
+export interface ApiMemo {
+  id: string;
+  familyId: string;
+  userId: string;
+  name: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type ApiOrderStatus = string;

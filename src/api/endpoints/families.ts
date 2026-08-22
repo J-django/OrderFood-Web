@@ -1,7 +1,8 @@
-import { get, patch, post } from "@/api/modules/methods";
+import { del, get, patch, post } from "@/api/modules/methods";
 import { asArray } from "@/api/endpoints/adapters";
 import type {
   ApiFamily,
+  ApiFamilyDetail,
   ConfirmInvitationPayload,
   ConfirmInvitationResult,
   CreateFamilyPayload,
@@ -18,6 +19,16 @@ export function getFamilies() {
   return get<{ items: ApiFamily[] }>("/families").then((result) => ({
     items: asArray<ApiFamily>(result?.items),
   }));
+}
+
+export function getFamily(familyId: string) {
+  return get<ApiFamilyDetail>(`/families/${familyId}`);
+}
+
+export function removeFamilyMember(familyId: string, memberId: string) {
+  return del<{ deleted: true }>(
+    `/families/${familyId}/members/${memberId}`,
+  );
 }
 
 export function createFamily(payload: CreateFamilyPayload) {

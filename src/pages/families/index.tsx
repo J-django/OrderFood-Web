@@ -31,7 +31,15 @@ export default function FamiliesPage() {
     let cancelled = false;
     getFamilies()
       .then((result) => {
-        if (!cancelled) setFamilies(result.items ?? []);
+        if (cancelled) return;
+
+        const fetchedFamilies = result.items ?? [];
+        setFamilies(fetchedFamilies);
+        setDefaultFamilyId(
+          fetchedFamilies.find((family) => family.isDefault)?.id ??
+            useUserStore.getState().user?.defaultFamilyId ??
+            null,
+        );
       })
       .catch(() => {
         /* 全局错误提示已处理 */

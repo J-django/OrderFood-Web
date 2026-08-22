@@ -34,7 +34,7 @@ export default function CategoriesPage() {
       .catch(() => {
         if (!cancelled) toast.add({ type: "error", title: "菜品种类加载失败" });
       })
-    .finally(() => {
+      .finally(() => {
         if (!cancelled) setLoadedFamilyId(currentFamilyId);
       });
     return () => {
@@ -42,7 +42,8 @@ export default function CategoriesPage() {
     };
   }, [currentFamilyId]);
 
-  const loading = Boolean(currentFamilyId) && loadedFamilyId !== currentFamilyId;
+  const loading =
+    Boolean(currentFamilyId) && loadedFamilyId !== currentFamilyId;
 
   function openAdd() {
     setEditing(null);
@@ -76,7 +77,10 @@ export default function CategoriesPage() {
           : [...items, result],
       );
       closeEditor();
-      toast.add({ type: "success", title: editing ? "种类已更新" : "种类已添加" });
+      toast.add({
+        type: "success",
+        title: editing ? "种类已更新" : "种类已添加",
+      });
     } catch {
       /* 全局错误提示已处理 */
     } finally {
@@ -121,25 +125,43 @@ export default function CategoriesPage() {
             请先选择或创建家庭
           </div>
         ) : loading ? (
-          <div className="px-6 py-16 text-center text-sm text-[#999]">加载中…</div>
+          <div className="px-6 py-16 text-center text-sm text-[#999]">
+            加载中…
+          </div>
         ) : categories.length === 0 ? (
           <div className="px-6 py-16 text-center text-sm text-[#999]">
             还没有菜品种类，点击右上角添加
           </div>
         ) : (
-          <section className="mx-3 mt-3 overflow-hidden rounded-xl bg-white" aria-label="菜品种类列表">
+          <section
+            className="mx-3 mt-3 overflow-hidden rounded-2xl bg-white"
+            aria-label="菜品种类列表"
+          >
             {categories.map((category) => (
-              <div key={category.id} className="flex items-center gap-3 border-b border-stone-100 px-4 py-3 last:border-b-0">
-                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-(--theme-color-soft) text-(--theme-color)">
-                  <span className="icon-[lucide--tag] size-4" />
+              <div
+                key={category.id}
+                className="flex items-center gap-3 border-b border-stone-100 px-3 py-2 last:border-b-0"
+              >
+                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-(--theme-color-soft) text-(--theme-color)">
+                  <span className="icon-[lucide--tag] size-3.5" />
                 </span>
                 <span className="min-w-0 flex-1 truncate text-sm font-medium text-stone-800">
                   {category.name}
                 </span>
-                <button type="button" aria-label={`编辑${category.name}`} onClick={() => openEdit(category)} className="grid size-9 place-items-center rounded-full text-stone-500 active:bg-stone-100">
+                <button
+                  type="button"
+                  aria-label={`编辑${category.name}`}
+                  onClick={() => openEdit(category)}
+                  className="grid size-7 place-items-center rounded-full text-stone-500 active:bg-stone-100"
+                >
                   <span className="icon-[lucide--pencil] size-4" />
                 </button>
-                <button type="button" aria-label={`删除${category.name}`} onClick={() => setDeleting(category)} className="grid size-9 place-items-center rounded-full text-red-400 active:bg-red-50">
+                <button
+                  type="button"
+                  aria-label={`删除${category.name}`}
+                  onClick={() => setDeleting(category)}
+                  className="grid size-7 place-items-center rounded-full text-red-400 active:bg-red-50"
+                >
                   <span className="icon-[lucide--trash-2] size-4" />
                 </button>
               </div>
@@ -154,7 +176,9 @@ export default function CategoriesPage() {
         showCancel
         confirmText={saving ? "保存中…" : "保存"}
         maskClosable={false}
-        classes={{ confirmButton: "bg-(--theme-color)/10 text-(--theme-color)" }}
+        classes={{
+          confirmButton: "bg-(--theme-color)/10 text-(--theme-color)",
+        }}
         onConfirm={() => void saveCategory()}
         onCancel={closeEditor}
         onClose={closeEditor}

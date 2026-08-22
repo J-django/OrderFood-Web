@@ -3,9 +3,10 @@ import type { To } from "react-router";
 
 type PageProps = HTMLAttributes<HTMLDivElement>;
 
-type PageHeaderProps = HTMLAttributes<HTMLElement> & {
+type PageHeaderProps = Omit<HTMLAttributes<HTMLElement>, "title"> & {
   backTo?: To;
-  title: string;
+  showBack?: boolean;
+  title: ReactNode;
   trailing?: ReactNode;
 };
 

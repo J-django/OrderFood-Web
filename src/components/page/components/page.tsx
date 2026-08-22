@@ -18,6 +18,7 @@ function Page({ className, ...props }: PageProps) {
 function PageHeader({
   title,
   backTo = "/",
+  showBack = true,
   trailing,
   className,
   ...props
@@ -45,18 +46,22 @@ function PageHeader({
       {...props}
     >
       <nav
-        aria-label={`${title}页面导航`}
+        aria-label={typeof title === "string" ? `${title}页面导航` : undefined}
         className="grid h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center"
       >
-        <button
-          type="button"
-          aria-label="返回"
-          onClick={handleBack}
-          className="hover:bg-muted-foreground/15 active:bg-muted-foreground/15 grid size-10 place-items-center rounded-full text-stone-700 transition-colors select-none"
-        >
-          <span className="icon-[tabler--chevron-left] size-6.5" />
-        </button>
-        <h1 className="text-4 pointer-events-none mx-auto max-w-48 truncate text-center font-bold text-stone-900 select-none">
+        {showBack ? (
+          <button
+            type="button"
+            aria-label="返回"
+            onClick={handleBack}
+            className="hover:bg-muted-foreground/15 active:bg-muted-foreground/15 grid size-10 place-items-center rounded-full text-stone-700 transition-colors select-none"
+          >
+            <span className="icon-[tabler--chevron-left] size-6.5" />
+          </button>
+        ) : (
+          <div className="size-10" aria-hidden="true" />
+        )}
+        <h1 className="text-4 mx-auto max-w-48 truncate text-center font-bold text-stone-900 select-none">
           {title}
         </h1>
         <div className="flex size-10 items-center justify-center select-none">

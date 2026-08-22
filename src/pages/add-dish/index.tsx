@@ -12,6 +12,15 @@ import { toast } from "@/components/ui/toast";
 import { useFamilyStore } from "@/store";
 import type { ApiMenuCategory } from "@/types";
 
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
+function parseList(value: string) {
+  return value
+    .split(/[、,，\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export default function AddDishPage() {
   useDocumentTitle("添加菜品");
   const navigate = useNavigate();
@@ -19,7 +28,9 @@ export default function AddDishPage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [image, setImage] = useState("");
   const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [ingredients, setIngredients] = useState("");
+  const [garnishes, setGarnishes] = useState("");
+  const [method, setMethod] = useState("");
   const [categories, setCategories] = useState<ApiMenuCategory[]>([]);
   const [categoryId, setCategoryId] = useState("");
   const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false);
@@ -38,6 +49,11 @@ export default function AddDishPage() {
   function chooseImage(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
+    if (file.size > MAX_IMAGE_SIZE) {
+      event.target.value = "";
+      toast.add({ type: "error", title: "图片大小不能超过 5MB" });
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => setImage(String(reader.result));
     reader.readAsDataURL(file);
@@ -63,7 +79,9 @@ export default function AddDishPage() {
         name: name.trim(),
         categoryId,
         images: image ? [image] : undefined,
-        method: description.trim(),
+        ingredients: parseList(ingredients),
+        garnishes: parseList(garnishes),
+        method: method.trim(),
       });
       toast.add({ type: "success", title: "菜品已添加" });
       navigate(routePaths.home);
@@ -114,11 +132,23 @@ export default function AddDishPage() {
             placeholder="菜名"
             className="mt-2.5 h-10.5 w-full rounded-lg border-none bg-white px-3 text-sm outline-none placeholder:text-[#999]"
           />
+          <Input
+            value={ingredients}
+            onChange={(event) => setIngredients(event.target.value)}
+            placeholder="食材（用逗号或顿号分隔）"
+            className="mt-2.5 h-10.5 w-full rounded-lg border-none bg-white px-3 text-sm outline-none placeholder:text-[#999]"
+          />
+          <Input
+            value={garnishes}
+            onChange={(event) => setGarnishes(event.target.value)}
+            placeholder="配料（用逗号或顿号分隔）"
+            className="mt-2.5 h-10.5 w-full rounded-lg border-none bg-white px-3 text-sm outline-none placeholder:text-[#999]"
+          />
           <Textarea
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
+            value={method}
+            onChange={(event) => setMethod(event.target.value)}
             rows={5}
-            placeholder="菜品描述"
+            placeholder="做法"
             className="mt-2.5 min-h-20 w-full resize-none rounded-xl border-none bg-white px-3 py-2.5 text-sm leading-5 outline-none placeholder:text-[#999]"
           />
           <Button
