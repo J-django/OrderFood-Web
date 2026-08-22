@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { CartItem, MenuDraft } from "@/types";
+import { nanoid } from "nanoid";
 
 interface DraftStore {
   drafts: MenuDraft[];
@@ -17,7 +18,7 @@ export const useDraftStore = create<DraftStore>()(
         set((state) => ({
           drafts: [
             {
-              id: crypto.randomUUID(),
+              id: nanoid(),
               items,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),

@@ -1,13 +1,18 @@
-export type ApiUser = {
-  id: string;
-  email?: string;
-  username?: string;
-  displayName?: string;
-};
-
-export type ApiTokenPair = {
+export interface ApiTokenPair {
   accessToken: string;
   refreshToken: string;
-  tokenType: string;
+  tokenType: 'Bearer';
   expiresIn: number;
-};
+}
+
+export interface ApiRefreshTokenPayload {
+  refreshToken: string;
+}
+
+export interface ApiLogoutPayload {
+  refreshToken?: string;
+}
+
+export interface ApiLogoutResult {
+  success: boolean;
+}

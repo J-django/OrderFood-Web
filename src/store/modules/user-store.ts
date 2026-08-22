@@ -5,10 +5,15 @@ import {
   emptyAuthPrincipal,
   readPersistedStoreState,
 } from '@/utils';
-import type { ApiTokenPair, ApiUser, UserStore, UserStoreState } from '@/types';
+import type {
+  ApiTokenPair,
+  ApiUser,
+  UserStore,
+  UserStoreState,
+} from '@/types';
 
 const STORE_NAME = 'order-food-user-store';
-const STORE_SCHEMA_VERSION = 1;
+const STORE_SCHEMA_VERSION = 2;
 
 const initialState: UserStoreState = {
   accessToken: null,
@@ -28,6 +33,15 @@ export const useUserStore = create<UserStore>()(
     (set) => ({
       ...initialState,
       clearAuth: () => set(initialState),
+      setLoginResult: (result) =>
+        set({
+          accessToken: result.accessToken,
+          authorization: decodeAuthPrincipalFromAccessToken(result.accessToken),
+          expiresIn: result.expiresIn,
+          refreshToken: result.refreshToken,
+          tokenType: result.tokenType,
+          user: result.user,
+        }),
       setAuthResponse: (user, tokens) =>
         set({
           accessToken: tokens.accessToken,

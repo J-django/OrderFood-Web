@@ -18,11 +18,17 @@ export const routePaths = {
     `${familiesPath}/${encodeURIComponent(familyId)}`,
   orders: `${profilePath}/orders`,
   addDish: `${dishesPath}/new`,
+  categories: `${profilePath}/categories`,
   editDish: (draftId: string) =>
     `${dishesPath}/new?draft=${encodeURIComponent(draftId)}`,
 } as const;
 
 export const routeConfigs: RouteConfig[] = [
+  {
+    path: "/login",
+    load: lazyPage(() => import("@/pages/login")),
+    handle: { title: "登录" },
+  },
   {
     path: "/",
     load: lazyPage(() => import("@/layout")),
@@ -71,6 +77,11 @@ export const routeConfigs: RouteConfig[] = [
         path: "profile/dishes/new",
         load: lazyPage(() => import("@/pages/add-dish")),
         handle: { title: "添加菜品" },
+      },
+      {
+        path: "profile/categories",
+        load: lazyPage(() => import("@/pages/categories")),
+        handle: { title: "菜品种类" },
       },
     ],
   },

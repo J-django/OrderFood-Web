@@ -11,7 +11,7 @@ export function EmptyPage({ title, description, icon }: EmptyPageProps) {
   useDocumentTitle(title);
 
   return (
-    <div className="grid min-h-[calc(100dvh-3.5rem)] place-items-center bg-[#f8f8f8] px-6 text-center">
+    <div className="grid min-h-[calc(100dvh-var(--layout-bottom-offset))] place-items-center bg-[#f8f8f8] px-6 text-center">
       <div>
         <div className="mx-auto grid size-14 place-items-center rounded-lg bg-white text-stone-400 shadow-sm">
           <span className={cn(icon, "size-6")} aria-hidden="true" />

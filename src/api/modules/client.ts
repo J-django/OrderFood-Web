@@ -2,8 +2,8 @@ import axios from 'axios';
 import { showApiErrorToast } from '@/api/modules/error-notification';
 import { logger } from '@/logger';
 import { setupAxiosMonitoring } from '@/monitoring';
-import { getUserAuthorizationHeader, useUserStore } from '@/store';
-import { clientEnv, getOrCreateDeviceId } from '@/utils';
+import { getCurrentFamilyId, getUserAuthorizationHeader, useUserStore } from '@/store';
+import { clientEnv } from '@/utils';
 import type { AxiosInstance, AxiosRequestHeaders } from 'axios';
 import type { ApiTokenPair } from '@/types';
 
@@ -45,12 +45,12 @@ function hasFetchAuthorizationHeader(headers: Headers) {
   return headers.has('Authorization') || headers.has('authorization');
 }
 
-function hasDeviceIdHeader(headers: AxiosRequestHeaders | undefined) {
-  return hasRequestHeader(headers, 'x-device-id');
+function hasFamilyIdHeader(headers: AxiosRequestHeaders | undefined) {
+  return hasRequestHeader(headers, 'x-family-id');
 }
 
-function isIdentityAuthRequest(url?: string) {
-  return typeof url === 'string' && /(^|\/)(identity\/)?auth\//.test(url);
+function isAuthRequest(url?: string) {
+  return typeof url === 'string' && /(^|\/)auth\//.test(url);
 }
 
 function redirectToLogin() {
@@ -94,7 +94,11 @@ async function refreshStoredAuthTokens() {
   if (!refreshToken) throw new Error('Refresh token is missing');
 
   refreshTokensPromise ??= apiClient
-    .post<ApiTokenPair>('/identity/auth/refresh', { refreshToken }, { skipGlobalErrorToast: true, skipAuth: true })
+    .post<ApiTokenPair>(
+      '/auth/refresh',
+      { refreshToken },
+      { skipAuth: true, skipGlobalErrorToast: true },
+    )
     .then((response) => {
       useUserStore.getState().setTokens(response.data);
       return response.data;
@@ -106,11 +110,15 @@ async function refreshStoredAuthTokens() {
   return refreshTokensPromise;
 }
 
-function withFetchAuthHeaders(headersInit?: HeadersInit, forceAuthorizationHeader = false) {
+function withFetchAuthHeaders(headersInit?: HeadersInit, forceAuthorizationHeader = false): Headers {
   const headers = new Headers(headersInit);
   if (forceAuthorizationHeader || !hasFetchAuthorizationHeader(headers)) {
     const authorizationHeader = getUserAuthorizationHeader();
     if (authorizationHeader) headers.set('Authorization', authorizationHeader);
+  }
+  const familyId = getCurrentFamilyId();
+  if (familyId && !headers.has('x-family-id')) {
+    headers.set('x-family-id', familyId);
   }
   return headers;
 }
@@ -118,7 +126,7 @@ function withFetchAuthHeaders(headersInit?: HeadersInit, forceAuthorizationHeade
 export async function fetchWithApiAuth(input: string | URL, init: RequestInit = {}): Promise<Response> {
   const requestUrl = String(input);
   const response = await fetch(input, { ...init, headers: withFetchAuthHeaders(init.headers) });
-  if (response.status !== 401 || isIdentityAuthRequest(requestUrl)) return response;
+  if (response.status !== 401 || isAuthRequest(requestUrl)) return response;
 
   try {
     await refreshStoredAuthTokens();
@@ -132,13 +140,18 @@ export async function fetchWithApiAuth(input: string | URL, init: RequestInit = 
 
 function setupAxiosAuth(client: AxiosInstance) {
   client.interceptors.request.use((config) => {
-    if (isIdentityAuthRequest(config.url) && !hasDeviceIdHeader(config.headers)) {
-      config.headers = setRequestHeader(config.headers, 'x-device-id', getOrCreateDeviceId());
+    if (config.skipAuth) return config;
+
+    if (!hasAuthorizationHeader(config.headers)) {
+      const authorizationHeader = getUserAuthorizationHeader();
+      if (authorizationHeader) config.headers = setRequestHeader(config.headers, 'Authorization', authorizationHeader);
     }
 
-    if (config.skipAuth || hasAuthorizationHeader(config.headers)) return config;
-    const authorizationHeader = getUserAuthorizationHeader();
-    if (authorizationHeader) config.headers = setRequestHeader(config.headers, 'Authorization', authorizationHeader);
+    if (!hasFamilyIdHeader(config.headers)) {
+      const familyId = getCurrentFamilyId();
+      if (familyId) config.headers = setRequestHeader(config.headers, 'x-family-id', familyId);
+    }
+
     return config;
   });
 
@@ -151,7 +164,7 @@ function setupAxiosAuth(client: AxiosInstance) {
         !error.config ||
         error.config.authRetry ||
         error.config.skipAuth ||
-        isIdentityAuthRequest(error.config.url)
+        isAuthRequest(error.config.url)
       ) {
         return Promise.reject(error);
       }
@@ -160,7 +173,13 @@ function setupAxiosAuth(client: AxiosInstance) {
         error.config.authRetry = true;
         await refreshStoredAuthTokens();
         const authorizationHeader = getUserAuthorizationHeader();
-        if (authorizationHeader) error.config.headers = setRequestHeader(error.config.headers, 'Authorization', authorizationHeader);
+        if (authorizationHeader) {
+          error.config.headers = setRequestHeader(
+            error.config.headers,
+            'Authorization',
+            authorizationHeader,
+          );
+        }
         return client.request(error.config);
       } catch (refreshError) {
         useUserStore.getState().clearAuth();

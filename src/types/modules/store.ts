@@ -1,4 +1,9 @@
-import type { ApiTokenPair, ApiUser, AuthPrincipal } from '@/types';
+import type {
+  ApiTokenPair,
+  ApiUser,
+  AuthPrincipal,
+  LoginResult,
+} from '@/types';
 
 export type UserStoreState = {
   accessToken: string | null;
@@ -11,6 +16,7 @@ export type UserStoreState = {
 
 export type UserStoreActions = {
   clearAuth: () => void;
+  setLoginResult: (result: LoginResult) => void;
   setAuthResponse: (user: ApiUser, tokens: ApiTokenPair) => void;
   setTokens: (tokens: ApiTokenPair) => void;
   setUser: (user: ApiUser | null) => void;

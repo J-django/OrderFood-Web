@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Page } from "@/components";
+import { deleteDraft, getDrafts } from "@/api/endpoints/drafts";
+import { draftToMenuDraft } from "@/api/endpoints/adapters";
+import { FoodCard, Page } from "@/components";
 import { routePaths } from "@/constants";
 import { useDocumentTitle } from "@/hooks";
-import { useCartStore, useDraftStore } from "@/store";
+import { useCartStore, useFamilyStore } from "@/store";
 
 function formatTime(value: string) {
   const date = new Date(value);
@@ -14,10 +16,50 @@ function formatTime(value: string) {
 export default function DraftsPage() {
   useDocumentTitle("草稿");
   const navigate = useNavigate();
-  const drafts = useDraftStore((state) => state.drafts);
-  const removeDraft = useDraftStore((state) => state.removeDraft);
+  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
   const setItems = useCartStore((state) => state.setItems);
+  const [drafts, setDrafts] = useState<ReturnType<typeof draftToMenuDraft>[]>(
+    [],
+  );
+  const [loadedFamilyId, setLoadedFamilyId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    if (!currentFamilyId) return;
+    let cancelled = false;
+    getDrafts()
+      .then((result) => {
+        if (!cancelled) {
+          setDrafts((result.items ?? []).map(draftToMenuDraft));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setDrafts([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadedFamilyId(currentFamilyId);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [currentFamilyId]);
+
+  const loading = Boolean(currentFamilyId) && loadedFamilyId !== currentFamilyId;
+
+  async function handleDelete() {
+    if (!deletingId || deleting) return;
+    setDeleting(true);
+    try {
+      await deleteDraft(deletingId);
+      setDrafts((prev) => prev.filter((draft) => draft.id !== deletingId));
+    } catch {
+      /* 全局错误提示已处理 */
+    } finally {
+      setDeleting(false);
+      setDeletingId(null);
+    }
+  }
 
   function editDraft(id: string) {
     const draft = drafts.find((entry) => entry.id === id);
@@ -30,16 +72,25 @@ export default function DraftsPage() {
   return (
     <Page className="bg-[#f8f8f8]">
       <Page.Content>
-        {drafts.length ? (
+        {!currentFamilyId ? (
+          <div className="pt-32 text-center text-sm text-[#999]">
+            请先选择家庭
+          </div>
+        ) : loading ? (
+          <div className="pt-32 text-center text-sm text-[#999]">加载中…</div>
+        ) : drafts.length ? (
           <section className="space-y-2.5 p-2.5" aria-label="草稿列表">
             {drafts.map((draft) => (
               <article
                 key={draft.id}
-                className="overflow-hidden rounded-2xl bg-white"
+                className="overflow-hidden rounded-xl bg-white"
               >
-                <header className="flex items-center justify-between border-b border-[#eee] px-3 py-2 text-sm text-[#555]">
-                  <span>草稿 {formatTime(draft.updatedAt)}</span>
-                  <span className="flex gap-4 font-medium text-[#ff5f15]">
+                <header className="flex items-center justify-between border-b border-[#f0f0f0] px-3 py-2 text-sm text-[#555]">
+                  <span>
+                    草稿{draft.name ? `「${draft.name}」` : " "}
+                    {formatTime(draft.updatedAt)}
+                  </span>
+                  <span className="flex gap-4 font-medium text-(--theme-color)">
                     <button type="button" onClick={() => editDraft(draft.id)}>
                       编辑
                     </button>
@@ -52,33 +103,15 @@ export default function DraftsPage() {
                     </button>
                   </span>
                 </header>
-                <div className="py-2.5">
-                  {(draft.items ?? []).map((item, index) => (
-                    <div
-                      key={item.id}
-                      className={`flex items-start px-3 ${index < draft.items.length - 1 ? "pb-2.5" : ""}`}
-                    >
-                      <img
-                        src={item.image}
-                        alt=""
-                        className="size-15 shrink-0 rounded-md object-cover"
-                      />
-                      <div className="ml-2 min-w-0 flex-1">
-                        <h2 className="text-sm leading-5 font-semibold text-[#222]">
-                          {item.name}
-                        </h2>
-                        <p className="truncate text-[13px] leading-4.5 text-[#777]">
-                          <b className="text-[#555]">食材：</b>
-                          {item.ingredients || "暂无"}
-                        </p>
-                        <p className="truncate text-[13px] leading-4.5 text-[#777]">
-                          <b className="text-[#555]">配料：</b>
-                          {item.seasonings || "暂无"}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                {(draft.items ?? []).map((item) => (
+                  <FoodCard
+                    key={item.id}
+                    item={item}
+                    imageSize="md"
+                    truncateDetail
+                    emptyDetailText="暂无"
+                  />
+                ))}
               </article>
             ))}
           </section>
@@ -107,11 +140,8 @@ export default function DraftsPage() {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  removeDraft(deletingId);
-                  setDeletingId(null);
-                }}
-                className="h-10 rounded-full bg-[#ff5f15] text-sm text-white"
+                onClick={() => void handleDelete()}
+                className="h-10 rounded-full bg-(--theme-color) text-sm text-white"
               >
                 删除
               </button>

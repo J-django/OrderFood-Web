@@ -1,30 +1,39 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import { createDish, getMenuCategories } from "@/api/endpoints/menu";
 import { Page } from "@/components";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { menuCategories, routePaths } from "@/constants";
+import { routePaths } from "@/constants";
 import { useDocumentTitle } from "@/hooks";
-import { useDishStore } from "@/store";
-import type { MenuCategory } from "@/types";
-
-const dishCategories = menuCategories.filter(
-  (item): item is MenuCategory => item !== "全部",
-);
+import { toast } from "@/components/ui/toast";
+import { useFamilyStore } from "@/store";
+import type { ApiMenuCategory } from "@/types";
 
 export default function AddDishPage() {
   useDocumentTitle("添加菜品");
   const navigate = useNavigate();
-  const addDish = useDishStore((state) => state.addDish);
+  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
   const inputRef = useRef<HTMLInputElement>(null);
   const [image, setImage] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<MenuCategory | "">("");
+  const [categories, setCategories] = useState<ApiMenuCategory[]>([]);
+  const [categoryId, setCategoryId] = useState("");
   const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!currentFamilyId) return;
+    getMenuCategories()
+      .then((result) => setCategories(result.items))
+      .catch(() => setCategories([]));
+  }, [currentFamilyId]);
+
+  const selectedCategory = categories.find((item) => item.id === categoryId);
 
   function chooseImage(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -34,23 +43,35 @@ export default function AddDishPage() {
     reader.readAsDataURL(file);
   }
 
-  function submit(event: React.FormEvent<HTMLFormElement>) {
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!name.trim()) {
       setError("请输入菜名");
       return;
     }
-    addDish({
-      id: crypto.randomUUID(),
-      name: name.trim(),
-      category: category || "其他",
-      price: 0,
-      image: image || "/images/menu/garden-salad.jpg",
-      ingredients: "",
-      seasonings: "",
-      method: description.trim(),
-    });
-    navigate(routePaths.home);
+    if (!currentFamilyId) {
+      setError("请先选择家庭");
+      return;
+    }
+    if (!categoryId) {
+      setError("请选择菜品种类");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await createDish({
+        name: name.trim(),
+        categoryId,
+        images: image ? [image] : undefined,
+        method: description.trim(),
+      });
+      toast.add({ type: "success", title: "菜品已添加" });
+      navigate(routePaths.home);
+    } catch {
+      /* 全局错误提示已处理 */
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -67,6 +88,7 @@ export default function AddDishPage() {
           />
           <Button
             type="button"
+            disablePressMotion={true}
             onClick={() => inputRef.current?.click()}
             className="flex h-45 w-full flex-col items-center justify-center overflow-hidden rounded-2xl bg-white text-sm text-[#999]"
           >
@@ -101,42 +123,46 @@ export default function AddDishPage() {
           />
           <Button
             type="button"
+            disablePressMotion={true}
             onClick={() => setCategoryDrawerOpen(true)}
             className="mt-2.5 flex h-10.5 w-full items-center justify-between rounded-xl border-none bg-white px-3 text-left text-sm"
           >
-            <span className={category ? "text-[#222]" : "text-[#999]"}>
-              {category || "菜品类"}
+            <span className={selectedCategory ? "text-[#222]" : "text-[#999]"}>
+              {selectedCategory?.name || "菜品种类"}
             </span>
             <span className="icon-[lucide--chevron-right] size-4 text-[#999]" />
           </Button>
           {error && <p className="mt-2 text-xs text-[#e53e20]">{error}</p>}
           <Button
             type="submit"
-            className="mt-5 h-10.5 w-full rounded-full bg-[#ff5f15] text-sm font-semibold text-white"
+            disablePressMotion={true}
+            disabled={submitting}
+            className="mt-5 h-10.5 w-full rounded-full bg-(--theme-color) text-sm font-semibold text-white disabled:opacity-50"
           >
-            保存菜品
+            {submitting ? "保存中…" : "保存菜品"}
           </Button>
         </form>
       </Page.Content>
       <Drawer open={categoryDrawerOpen} onOpenChange={setCategoryDrawerOpen}>
         <DrawerContent className="!rounded-b-none bg-white [--drawer-inset:0rem]">
           <div className="px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
-            {dishCategories.map((item) => {
-              const selected = category === item;
+            {categories.map((item) => {
+              const selected = categoryId === item.id;
               return (
                 <Button
-                  key={item}
+                  key={item.id}
                   type="button"
                   aria-pressed={selected}
                   onClick={() => {
-                    setCategory(item);
+                    setCategoryId(item.id);
                     setCategoryDrawerOpen(false);
                   }}
-                  className="flex h-12 w-full items-center justify-between border-b border-[#f0f0f0] text-left text-sm text-[#222] last:border-b-0"
+                  disablePressMotion={true}
+                  className="flex h-12 w-full items-center justify-between rounded-full bg-white px-5 text-left text-sm text-[#222] active:bg-[#f5f5f5]"
                 >
-                  <span>{item}</span>
+                  <span>{item.name}</span>
                   {selected && (
-                    <span className="icon-[lucide--check] size-5 text-[#ff5f15]" />
+                    <span className="icon-[lucide--check] size-5 text-(--theme-color)" />
                   )}
                 </Button>
               );

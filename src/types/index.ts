@@ -1,4 +1,5 @@
 export * from "./modules/menu";
+export * from "./modules/api-domain";
 export * from "./modules/api";
 export * from "./modules/auth";
 export * from "./modules/api-endpoints";

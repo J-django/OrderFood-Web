@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { CartItem, FoodOrder } from "@/types";
+import { nanoid } from "nanoid";
 
 interface OrderStore {
   orders: FoodOrder[];
@@ -15,7 +16,7 @@ export const useOrderStore = create<OrderStore>()(
         set((state) => ({
           orders: [
             {
-              id: crypto.randomUUID(),
+              id: nanoid(),
               orderNo: `OF${Date.now().toString().slice(-10)}`,
               items,
               remark,

@@ -1,3 +1,4 @@
+import type { ApiOrderStatus } from "./api-domain";
 import type { CartItem } from "./menu";
 
 export interface FoodOrder {
@@ -5,6 +6,6 @@ export interface FoodOrder {
   orderNo: string;
   items: CartItem[];
   remark: string;
-  status: "pending_confirmation";
+  status: ApiOrderStatus;
   createdAt: string;
 }

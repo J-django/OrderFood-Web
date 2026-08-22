@@ -7,7 +7,7 @@ function Page({ className, ...props }: PageProps) {
     <div
       data-slot="page"
       className={cn(
-        "flex h-[calc(100dvh-3.5rem-env(safe-area-inset-bottom))] min-h-0 w-full flex-col overflow-hidden bg-white",
+        "flex h-[calc(100dvh-var(--layout-bottom-offset))] min-h-0 w-full flex-col overflow-hidden bg-white",
         className,
       )}
       {...props}
@@ -39,7 +39,7 @@ function PageHeader({
     <header
       data-slot="page-header"
       className={cn(
-        "h-[calc(3.5rem+env(safe-area-inset-top))] shrink-0 border-b border-stone-100 bg-white px-1 pt-[env(safe-area-inset-top)]",
+        "h-[calc(3.5rem+env(safe-area-inset-top))] shrink-0 border-b border-stone-100 bg-white px-2 pt-[env(safe-area-inset-top)]",
         className,
       )}
       {...props}
@@ -52,14 +52,14 @@ function PageHeader({
           type="button"
           aria-label="返回"
           onClick={handleBack}
-          className="grid size-10 place-items-center rounded-full text-stone-700 transition-colors hover:bg-stone-100 active:bg-stone-200"
+          className="hover:bg-muted-foreground/15 active:bg-muted-foreground/15 grid size-10 place-items-center rounded-full text-stone-700 transition-colors select-none"
         >
-          <span className="icon-[lucide--chevron-left] size-6.5" />
+          <span className="icon-[tabler--chevron-left] size-6.5" />
         </button>
-        <h1 className="text-4 truncate text-center font-bold text-stone-900">
+        <h1 className="text-4 pointer-events-none mx-auto max-w-48 truncate text-center font-bold text-stone-900 select-none">
           {title}
         </h1>
-        <div className="flex size-10 items-center justify-center">
+        <div className="flex size-10 items-center justify-center select-none">
           {trailing}
         </div>
       </nav>
