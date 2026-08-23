@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { logout } from "@/api";
-import { getMe } from "@/api/endpoints/users";
 import { useDocumentTitle } from "@/hooks";
 import { toast } from "@/components/ui/toast";
 import { useFamilyStore, useUserStore } from "@/store";
@@ -32,31 +30,9 @@ const profileEntries = [
 export default function ProfilePage() {
   useDocumentTitle("我的");
   const user = useUserStore((state) => state.user);
+  const orderedDishCount = useUserStore((state) => state.orderedDishCount);
   const clearAuth = useUserStore((state) => state.clearAuth);
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
   const setCurrentFamily = useFamilyStore((state) => state.setCurrentFamily);
-  const [orderedDishCount, setOrderedDishCount] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!currentFamilyId) return;
-    let cancelled = false;
-    getMe()
-      .then((result) => {
-        if (cancelled) return;
-        setOrderedDishCount(result.orderedDishCount);
-        if (!currentFamilyId && result.user.defaultFamilyId) {
-          setCurrentFamily(result.user.defaultFamilyId);
-        }
-      })
-      .catch(() => {
-        /* 静默失败，不影响页面展示 */
-      });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentFamilyId]);
-
   async function handleLogout() {
     const { refreshToken } = useUserStore.getState();
     try {

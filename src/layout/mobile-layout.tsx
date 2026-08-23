@@ -1,5 +1,6 @@
-import type { CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { NavLink, Navigate, Outlet, useLocation } from "react-router";
+import { getMe } from "@/api/endpoints/users";
 import { bottomNavigation } from "@/constants";
 import { useUserStore } from "@/store";
 import { cn } from "@/utils";
@@ -11,6 +12,34 @@ const tabBarPaths = new Set<string>(
 export function MobileLayout() {
   const { pathname, search } = useLocation();
   const accessToken = useUserStore((state) => state.accessToken);
+  const setUser = useUserStore((state) => state.setUser);
+  const setUserInfo = useUserStore((state) => state.setUserInfo);
+  const userRequestStarted = useRef(false);
+  const mounted = useRef(false);
+  const [userReady, setUserReady] = useState(false);
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!accessToken || userRequestStarted.current) return;
+    userRequestStarted.current = true;
+
+    getMe()
+      .then((result) => {
+        if (mounted.current) setUserInfo(result);
+      })
+      .catch(() => {
+        if (mounted.current) setUser(null);
+      })
+      .finally(() => {
+        if (mounted.current) setUserReady(true);
+      });
+  }, [accessToken, setUser, setUserInfo]);
 
   if (!accessToken) {
     return (
@@ -18,6 +47,17 @@ export function MobileLayout() {
         to={`/login?redirect=${encodeURIComponent(`${pathname}${search}`)}`}
         replace
       />
+    );
+  }
+
+  if (!userReady) {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-[#f8f8f8]">
+        <span
+          className="icon-[lucide--loader-circle] size-6 animate-spin text-(--theme-color)"
+          aria-label="页面加载中"
+        />
+      </div>
     );
   }
 

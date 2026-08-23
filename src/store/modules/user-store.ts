@@ -22,6 +22,7 @@ const initialState: UserStoreState = {
   refreshToken: null,
   tokenType: null,
   user: null,
+  orderedDishCount: null,
 };
 
 function resolveTokenType(tokens: ApiTokenPair) {
@@ -41,6 +42,7 @@ export const useUserStore = create<UserStore>()(
           refreshToken: result.refreshToken,
           tokenType: result.tokenType,
           user: result.user,
+          orderedDishCount: null,
         }),
       setAuthResponse: (user, tokens) =>
         set({
@@ -50,6 +52,7 @@ export const useUserStore = create<UserStore>()(
           refreshToken: tokens.refreshToken,
           tokenType: resolveTokenType(tokens),
           user,
+          orderedDishCount: null,
         }),
       setTokens: (tokens) =>
         set({
@@ -60,6 +63,8 @@ export const useUserStore = create<UserStore>()(
           tokenType: resolveTokenType(tokens),
         }),
       setUser: (user: ApiUser | null) => set({ user }),
+      setUserInfo: (result) =>
+        set({ user: result.user, orderedDishCount: result.orderedDishCount }),
     }),
     {
       name: STORE_NAME,

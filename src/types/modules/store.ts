@@ -3,6 +3,7 @@ import type {
   ApiUser,
   AuthPrincipal,
   LoginResult,
+  MeResult,
 } from '@/types';
 
 export type UserStoreState = {
@@ -12,6 +13,7 @@ export type UserStoreState = {
   tokenType: string | null;
   expiresIn: number | null;
   user: ApiUser | null;
+  orderedDishCount: number | null;
 };
 
 export type UserStoreActions = {
@@ -20,6 +22,7 @@ export type UserStoreActions = {
   setAuthResponse: (user: ApiUser, tokens: ApiTokenPair) => void;
   setTokens: (tokens: ApiTokenPair) => void;
   setUser: (user: ApiUser | null) => void;
+  setUserInfo: (result: MeResult) => void;
 };
 
 export type UserStore = UserStoreState & UserStoreActions;
