@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { createDish, getMenuCategories } from "@/api/endpoints/menu";
-import { Page } from "@/components";
+import { FamilyRequired, Page } from "@/components";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
@@ -97,16 +97,7 @@ export default function AddDishPage() {
   }
 
   if (!currentFamilyId) {
-    return (
-      <Page className="bg-[#f8f8f8]">
-        <Page.Header title="添加菜品" backTo={routePaths.profile} />
-        <Page.Content>
-          <div className="px-6 py-16 text-center text-sm text-[#999]">
-            请先创建家庭
-          </div>
-        </Page.Content>
-      </Page>
-    );
+    return <FamilyRequired />;
   }
 
   return (

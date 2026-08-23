@@ -9,7 +9,7 @@ import {
   updateMemo,
 } from "@/api/endpoints/memos";
 import { draftToMenuDraft } from "@/api/endpoints/adapters";
-import { Dialog, FoodCard, Page } from "@/components";
+import { Dialog, FamilyRequired, FoodCard, Page } from "@/components";
 import { Segmented } from "@/components/segmented";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -70,6 +70,10 @@ export default function DraftsPage() {
 
   const loading =
     Boolean(currentFamilyId) && loadedFamilyId !== currentFamilyId;
+
+  if (!currentFamilyId) {
+    return <FamilyRequired />;
+  }
 
   async function handleDelete() {
     if (!deletingId || deleting) return;
@@ -245,11 +249,7 @@ export default function DraftsPage() {
         }
       />
       <Page.Content>
-        {!currentFamilyId ? (
-          <div className="pt-32 text-center text-sm text-[#999]">
-            请先创建家庭
-          </div>
-        ) : loading ? (
+        {loading ? (
           <div className="pt-32 text-center text-sm text-[#999]">加载中…</div>
         ) : (
           <AnimatePresence mode="wait" initial={false}>

@@ -22,7 +22,7 @@ import {
   updateMenuCategoryOrder,
   updateMenuCategory,
 } from "@/api/endpoints/menu";
-import { Dialog, Page } from "@/components";
+import { Dialog, FamilyRequired, Page } from "@/components";
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { routePaths } from "@/constants";
 import { useDocumentTitle } from "@/hooks";
@@ -153,6 +153,10 @@ export default function CategoriesPage() {
 
   const loading =
     Boolean(currentFamilyId) && loadedFamilyId !== currentFamilyId;
+
+  if (!currentFamilyId) {
+    return <FamilyRequired />;
+  }
 
   function openAdd() {
     setName("");
@@ -285,11 +289,7 @@ export default function CategoriesPage() {
         }
       />
       <Page.Content>
-        {!currentFamilyId ? (
-          <div className="px-6 py-16 text-center text-sm text-[#999]">
-            请先创建家庭
-          </div>
-        ) : loading ? (
+        {loading ? (
           <div className="px-6 py-16 text-center text-sm text-[#999]">
             加载中…
           </div>
