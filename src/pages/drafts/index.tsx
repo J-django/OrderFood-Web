@@ -105,6 +105,14 @@ export default function DraftsPage() {
     setMemoContent("");
   }
 
+  function handleAddMemo() {
+    if (!currentFamilyId) {
+      toast.add({ type: "error", title: "请先创建家庭" });
+      return;
+    }
+    openMemoEditor();
+  }
+
   async function handleSaveMemo() {
     const name = memoName.trim();
     const content = memoContent.trim();
@@ -218,7 +226,7 @@ export default function DraftsPage() {
             <button
               type="button"
               aria-label="添加备忘录"
-              onClick={() => openMemoEditor()}
+              onClick={handleAddMemo}
               className="grid size-9 shrink-0 place-items-center rounded-full bg-(--theme-color)/10 text-(--theme-color) transition-colors hover:opacity-90 active:opacity-80"
             >
               <span className="icon-[lucide--plus] size-5" aria-hidden="true" />
