@@ -71,10 +71,6 @@ export default function DraftsPage() {
   const loading =
     Boolean(currentFamilyId) && loadedFamilyId !== currentFamilyId;
 
-  if (!currentFamilyId) {
-    return <FamilyRequired />;
-  }
-
   async function handleDelete() {
     if (!deletingId || deleting) return;
     setDeleting(true);
@@ -249,7 +245,9 @@ export default function DraftsPage() {
         }
       />
       <Page.Content>
-        {loading ? (
+        {!currentFamilyId ? (
+          <FamilyRequired className="min-h-full" />
+        ) : loading ? (
           <div className="pt-32 text-center text-sm text-[#999]">加载中…</div>
         ) : (
           <AnimatePresence mode="wait" initial={false}>

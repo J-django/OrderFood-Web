@@ -1,11 +1,21 @@
 import { useNavigate } from "react-router";
 import { routePaths } from "@/constants";
+import { cn } from "@/utils";
 
-function FamilyRequired() {
+interface FamilyRequiredProps {
+  className?: string;
+}
+
+function FamilyRequired({ className }: FamilyRequiredProps) {
   const navigate = useNavigate();
 
   return (
-    <div className="grid min-h-[calc(100dvh-var(--layout-bottom-offset))] place-items-center bg-white px-8 text-center">
+    <div
+      className={cn(
+        "grid min-h-[calc(100dvh-var(--layout-bottom-offset))] place-items-center bg-white px-8 text-center",
+        className,
+      )}
+    >
       <div>
         <span className="icon-[lucide--users-round] mx-auto block size-7 text-[#b8b8b8]" />
         <p className="mt-3 text-sm text-[#999]">请先创建家庭</p>

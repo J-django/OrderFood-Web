@@ -154,10 +154,6 @@ export default function CategoriesPage() {
   const loading =
     Boolean(currentFamilyId) && loadedFamilyId !== currentFamilyId;
 
-  if (!currentFamilyId) {
-    return <FamilyRequired />;
-  }
-
   function openAdd() {
     setName("");
     setEditorOpen(true);
@@ -289,7 +285,9 @@ export default function CategoriesPage() {
         }
       />
       <Page.Content>
-        {loading ? (
+        {!currentFamilyId ? (
+          <FamilyRequired className="min-h-full" />
+        ) : loading ? (
           <div className="px-6 py-16 text-center text-sm text-[#999]">
             加载中…
           </div>

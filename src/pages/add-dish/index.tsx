@@ -96,15 +96,14 @@ export default function AddDishPage() {
     }
   }
 
-  if (!currentFamilyId) {
-    return <FamilyRequired />;
-  }
-
   return (
     <Page className="bg-[#f8f8f8]">
       <Page.Header title="添加菜品" backTo={routePaths.profile} />
       <Page.Content>
-        <form onSubmit={submit} className="p-3.5">
+        {!currentFamilyId ? (
+          <FamilyRequired className="min-h-full" />
+        ) : (
+          <form onSubmit={submit} className="p-3.5">
           <Input
             ref={inputRef}
             type="file"
@@ -179,7 +178,8 @@ export default function AddDishPage() {
           >
             {submitting ? "保存中…" : "保存菜品"}
           </Button>
-        </form>
+          </form>
+        )}
       </Page.Content>
       <Drawer open={categoryDrawerOpen} onOpenChange={setCategoryDrawerOpen}>
         <DrawerContent className="!rounded-b-none bg-white [--drawer-inset:0rem]">
