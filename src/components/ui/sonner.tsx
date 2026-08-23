@@ -1,42 +1,66 @@
+import { createPortal } from "react-dom";
 import { useTheme } from "next-themes";
-import { Toaster as Sonner, type ToasterProps } from "sonner";
-import {
-  CircleCheckIcon,
-  InfoIcon,
-  TriangleAlertIcon,
-  OctagonXIcon,
-  Loader2Icon,
-} from "lucide-react";
+import { Toaster as Sonner } from "sonner";
+import { cn } from "@/utils";
+import type { ToasterProps } from "sonner";
 
-const Toaster = ({ ...props }: ToasterProps) => {
+const Toaster = ({
+  className,
+  position = "top-center",
+  style,
+  toastOptions,
+  ...props
+}: ToasterProps) => {
   const { theme = "system" } = useTheme();
+  const portalTarget =
+    typeof document === "undefined" ? undefined : document.body;
 
-  return (
+  if (!portalTarget) {
+    return null;
+  }
+
+  return createPortal(
     <Sonner
       theme={theme as ToasterProps["theme"]}
-      className="toaster group"
+      position={position}
+      className={cn("toaster group z-2147483647", className)}
       icons={{
-        success: <CircleCheckIcon className="size-4" />,
-        info: <InfoIcon className="size-4" />,
-        warning: <TriangleAlertIcon className="size-4" />,
-        error: <OctagonXIcon className="size-4" />,
-        loading: <Loader2Icon className="size-4 animate-spin" />,
+        info: null,
+        success: null,
+        warning: null,
+        error: null,
+        loading: null,
       }}
-      style={
-        {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
-        } as React.CSSProperties
-      }
+      style={{ ...style, pointerEvents: "auto", zIndex: 2147483647 }}
       toastOptions={{
+        ...toastOptions,
+        style: {
+          ...toastOptions?.style,
+          pointerEvents: "auto",
+        },
         classNames: {
-          toast: "cn-toast",
+          ...toastOptions?.classNames,
+          toast: cn(
+            "cn-toast flex! items-start! rounded-xl! border-none! px-3! py-2.5! text-[14px]! text-(--lc-text)/90!",
+            toastOptions?.classNames?.toast,
+          ),
+          title: cn("font-medium!", toastOptions?.classNames?.title),
+          description: "text-current/75!",
+          icon: cn(
+            "mr-0! flex! h-5! w-5! shrink-0! items-center! justify-center! opacity-100!",
+            toastOptions?.classNames?.icon,
+          ),
+          content: cn("leading-[20px]!", toastOptions?.classNames?.content),
+          info: "bg-(--lc-bg)/90!",
+          success: "bg-(--lc-green)/90! text-white!",
+          warning: "bg-(--lc-orange)/90! text-white!",
+          error: "bg-(--lc-red)/90! text-white!",
+          loading: "bg-(--lc-bg)/90!",
         },
       }}
       {...props}
-    />
+    />,
+    portalTarget,
   );
 };
 

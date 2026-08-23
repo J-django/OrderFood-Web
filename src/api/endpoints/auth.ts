@@ -12,6 +12,7 @@ export function login(payload: LoginPayload) {
   return post<LoginResult, LoginPayload>("/auth/login", {
     data: payload,
     skipAuth: true,
+    skipGlobalErrorToast: true,
   });
 }
 

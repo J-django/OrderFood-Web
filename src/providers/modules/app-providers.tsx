@@ -1,7 +1,7 @@
-import { MotionConfig } from 'motion/react'
-import type { PropsWithChildren } from 'react'
-import { TooltipProvider } from '@/components/ui/tooltip'
-import { Toaster } from '@/components/ui/toast'
+import { MotionConfig } from "motion/react";
+import type { PropsWithChildren } from "react";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
 
 export function AppProviders({ children }: PropsWithChildren) {
   return (
@@ -11,5 +11,5 @@ export function AppProviders({ children }: PropsWithChildren) {
         <Toaster />
       </MotionConfig>
     </TooltipProvider>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import { del, get, patch, post } from "@/api/modules/methods";
+import { del, post } from "@/api/modules/methods";
 import { asArray } from "@/api/endpoints/adapters";
 import type {
   ApiFamily,
@@ -16,42 +16,42 @@ import type {
 } from "@/types";
 
 export function getFamilies() {
-  return get<{ items: ApiFamily[] }>("/families").then((result) => ({
+  return post<{ items: ApiFamily[] }>("/getFamilies").then((result) => ({
     items: asArray<ApiFamily>(result?.items),
   }));
 }
 
 export function getFamily(familyId: string) {
-  return get<ApiFamilyDetail>(`/families/${familyId}`);
+  return post<ApiFamilyDetail, { familyId: string }>("/getFamily", {
+    data: { familyId },
+  });
 }
 
 export function removeFamilyMember(familyId: string, memberId: string) {
-  return del<{ deleted: true }>(
-    `/families/${familyId}/members/${memberId}`,
-  );
+  return del<{ deleted: true }>(`/families/${familyId}/members/${memberId}`);
 }
 
 export function createFamily(payload: CreateFamilyPayload) {
-  return post<ApiFamily, CreateFamilyPayload>("/families", { data: payload });
+  return post<ApiFamily, CreateFamilyPayload>("/addFamily", { data: payload });
 }
 
 export function searchFamilyInvitation(payload: SearchInvitationPayload) {
   return post<SearchInvitationResult, SearchInvitationPayload>(
-    "/families/invitations/search",
+    "/searchFamilyInvitation",
     { data: payload },
   );
 }
 
 export function confirmFamilyInvitation(payload: ConfirmInvitationPayload) {
   return post<ConfirmInvitationResult, ConfirmInvitationPayload>(
-    "/families/invitations/confirm",
+    "/confirmFamilyInvitation",
     { data: payload },
   );
 }
 
 export function searchJoinableFamilies(payload: SearchJoinFamiliesPayload) {
   return post<SearchJoinFamiliesResult, SearchJoinFamiliesPayload>(
-    "/families/join/search",
+    "/searchJoinableFamilies",
     { data: payload },
   ).then((result) => ({
     items: asArray<SearchJoinFamiliesResult["items"][number]>(result?.items),
@@ -59,11 +59,14 @@ export function searchJoinableFamilies(payload: SearchJoinFamiliesPayload) {
 }
 
 export function joinFamily(payload: JoinFamilyPayload) {
-  return post<JoinFamilyResult, JoinFamilyPayload>("/families/join", {
+  return post<JoinFamilyResult, JoinFamilyPayload>("/joinFamily", {
     data: payload,
   });
 }
 
 export function setDefaultFamily(familyId: string) {
-  return patch<SetDefaultFamilyResult>(`/families/${familyId}/default`);
+  return post<SetDefaultFamilyResult, { familyId: string }>(
+    "/setDefaultFamily",
+    { data: { familyId } },
+  );
 }

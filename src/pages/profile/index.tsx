@@ -109,7 +109,7 @@ export default function ProfilePage() {
           >
             <span className="flex items-center gap-3">
               <span className={`${entry.icon} size-5 text-(--theme-color)`} />
-              <span>{entry.title}</span>
+              <span className="text-sm">{entry.title}</span>
             </span>
             <span className="icon-[lucide--chevron-right] size-5 text-[#999]" />
           </Link>

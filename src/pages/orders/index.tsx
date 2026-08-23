@@ -42,7 +42,8 @@ export default function OrdersPage() {
     };
   }, [currentFamilyId]);
 
-  const loading = Boolean(currentFamilyId) && loadedFamilyId !== currentFamilyId;
+  const loading =
+    Boolean(currentFamilyId) && loadedFamilyId !== currentFamilyId;
 
   async function handleRepeat(orderId: string) {
     if (repeatingId) return;
@@ -67,7 +68,7 @@ export default function OrdersPage() {
           <div className="grid min-h-[60dvh] place-items-center px-6 text-center">
             <div>
               <span className="icon-[lucide--receipt-text] mx-auto block size-8 text-[#b8b8b8]" />
-              <p className="mt-3 text-sm text-[#999]">请先选择家庭</p>
+              <p className="mt-3 text-sm text-[#999]">请先创建家庭</p>
             </div>
           </div>
         ) : loading ? (

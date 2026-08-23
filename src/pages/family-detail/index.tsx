@@ -138,7 +138,7 @@ export default function FamilyDetailPage() {
         title={family.name}
         backTo={routePaths.families}
         trailing={
-          isOwner ? (
+          isOwner && family.members.length > 1 ? (
             <button
               type="button"
               aria-label={editingMembers ? "完成编辑成员" : "编辑成员"}
@@ -205,19 +205,13 @@ export default function FamilyDetailPage() {
             <button
               type="button"
               onClick={() => setShowAddDialog(true)}
-              className="flex h-12 w-full items-center justify-center gap-1 text-sm font-semibold text-(--theme-color)"
+              className="flex h-9.5 w-full items-center justify-center gap-1 text-[13px] font-semibold text-(--theme-color)"
             >
               <span className="icon-[tabler--plus] size-4" />
               邀请成员
             </button>
           )}
         </section>
-        <p className="px-4 pt-3 text-xs leading-5 text-stone-400">
-          创建于 {new Date(family.createdAt).toLocaleDateString()}。
-          {isOwner
-            ? "作为创建者，你可以通过手机号邀请成员加入。"
-            : "仅家庭创建者可以邀请新成员。"}
-        </p>
       </Page.Content>
 
       <Dialog

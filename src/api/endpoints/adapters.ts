@@ -21,22 +21,15 @@ export function asArray<T>(value: unknown): T[] {
   return Array.isArray(value) ? (value as T[]) : [];
 }
 
-function joinList(values: string[] | undefined) {
-  return (values ?? []).filter(Boolean).join("、");
-}
-
 export function dishToMenuItem(dish: ApiDish): MenuItem {
   return {
     id: dish.id,
     name: dish.name,
-    category:
-      (dish.category?.name as MenuCategory) ||
-      (dish.categories?.[0] as MenuCategory) ||
-      defaultMenuCategory,
+    category: (dish.category?.name as MenuCategory) || defaultMenuCategory,
     price: 0,
     image: dish.images?.[0] || FALLBACK_DISH_IMAGE,
-    ingredients: joinList(dish.ingredients),
-    seasonings: joinList(dish.garnishes),
+    ingredients: dish.ingredients ?? "",
+    seasonings: dish.garnishes ?? "",
     method: dish.method ?? "",
   };
 }

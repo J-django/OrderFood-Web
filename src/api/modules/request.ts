@@ -1,4 +1,7 @@
-import { createApiCancelController, forwardAbortSignal } from "@/api/modules/cancel";
+import {
+  createApiCancelController,
+  forwardAbortSignal,
+} from "@/api/modules/cancel";
 import { initializeApiClient } from "@/api/modules/client";
 import { AxiosError } from "axios";
 import type { AxiosInstance } from "axios";
@@ -50,8 +53,14 @@ export function createCancelableRequest<TResponse = unknown, TData = unknown>(
   options: ApiRequestOptions<TData>,
 ): ApiCancelableTask<TResponse> {
   const cancelController = createApiCancelController();
-  const cleanupForwardAbort = forwardAbortSignal(options.signal, cancelController);
-  const { client, config } = buildRequestOptions(options, cancelController.signal);
+  const cleanupForwardAbort = forwardAbortSignal(
+    options.signal,
+    cancelController,
+  );
+  const { client, config } = buildRequestOptions(
+    options,
+    cancelController.signal,
+  );
   const task = resolveClient(client)
     .request<TResponse, ApiResponse<TResponse, TData>, TData>(config)
     .then((response) => response.data)

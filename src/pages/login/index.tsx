@@ -3,7 +3,8 @@ import { Navigate, useNavigate, useSearchParams } from "react-router";
 import { Page } from "@/components";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { login } from "@/api";
+import { getApiErrorMessage, login } from "@/api";
+import { toast } from "@/components/ui/toast";
 import { routePaths } from "@/constants";
 import { useDocumentTitle } from "@/hooks";
 import { useFamilyStore, useUserStore } from "@/store";
@@ -21,8 +22,8 @@ export default function LoginPage() {
     () => localStorage.getItem("order-food-last-phone") ?? "",
   );
   const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
 
   if (accessToken) {
     return <Navigate to={searchParams.get("redirect") || "/"} replace />;
@@ -32,14 +33,33 @@ export default function LoginPage() {
     event.preventDefault();
     const trimmedPhone = phone.trim();
     const trimmedName = name.trim();
-    if (!trimmedPhone || !trimmedName) {
-      setError("请输入手机号和姓名");
+    if (!/^\d{11}$/.test(trimmedPhone)) {
+      toast.add({ type: "error", title: "请输入11位手机号" });
       return;
     }
-    setError("");
+    if (!trimmedName) {
+      toast.add({ type: "error", title: "请输入姓名" });
+      return;
+    }
+    if (trimmedName.length > 100) {
+      toast.add({ type: "error", title: "姓名不能超过100个字符" });
+      return;
+    }
+    if (!password) {
+      toast.add({ type: "error", title: "请输入密码" });
+      return;
+    }
+    if (password.length > 128) {
+      toast.add({ type: "error", title: "密码不能超过128个字符" });
+      return;
+    }
     setSubmitting(true);
     try {
-      const result = await login({ phone: trimmedPhone, name: trimmedName });
+      const result = await login({
+        phone: trimmedPhone,
+        name: trimmedName,
+        password,
+      });
       localStorage.setItem("order-food-last-phone", trimmedPhone);
       setLoginResult(result);
       setFamilies(result.families ?? []);
@@ -49,8 +69,11 @@ export default function LoginPage() {
       navigate(searchParams.get("redirect") || routePaths.home, {
         replace: true,
       });
-    } catch {
-      setError("登录失败，请稍后重试");
+    } catch (requestError) {
+      toast.add({
+        type: "error",
+        title: getApiErrorMessage(requestError) ?? "登录失败，请稍后重试",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -77,30 +100,35 @@ export default function LoginPage() {
             value={phone}
             onChange={(event) => {
               setPhone(event.target.value);
-              setError("");
             }}
             type="tel"
             placeholder="手机号"
             aria-label="手机号"
+            inputMode="numeric"
+            maxLength={11}
             className="mt-10 h-11 w-full rounded-full border-none bg-[#f5f5f5] px-4 text-sm outline-none placeholder:text-[#aaa]"
           />
           <Input
             value={name}
             onChange={(event) => {
               setName(event.target.value);
-              setError("");
             }}
             placeholder="姓名"
             aria-label="姓名"
-            maxLength={20}
+            maxLength={100}
             className="mt-2.5 h-11 w-full rounded-full border-none bg-[#f5f5f5] px-4 text-sm outline-none placeholder:text-[#aaa]"
           />
-          {error && (
-            <p role="alert" className="mt-3 text-center text-xs text-[#e53e20]">
-              {error}
-            </p>
-          )}
-
+          <Input
+            value={password}
+            onChange={(event) => {
+              setPassword(event.target.value);
+            }}
+            type="password"
+            placeholder="密码"
+            aria-label="密码"
+            maxLength={128}
+            className="mt-2.5 h-11 w-full rounded-full border-none bg-[#f5f5f5] px-4 text-sm outline-none placeholder:text-[#aaa]"
+          />
           <Button
             type="submit"
             disabled={submitting}

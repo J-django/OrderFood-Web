@@ -14,10 +14,7 @@ export interface ApiUser {
   createdAt: string;
 }
 
-export type ApiUserSummary = Pick<
-  ApiUser,
-  "id" | "name" | "phone"
->;
+export type ApiUserSummary = Pick<ApiUser, "id" | "name" | "phone">;
 
 export interface ApiFamily {
   id: string;
@@ -46,10 +43,9 @@ export interface ApiDish {
   name: string;
   categoryId: string;
   category: ApiMenuCategory;
-  categories?: string[];
   images: string[];
-  ingredients: string[];
-  garnishes: string[];
+  ingredients: string;
+  garnishes: string;
   method: string;
   createdAt: string;
 }
@@ -57,8 +53,9 @@ export interface ApiDish {
 export interface ApiMenuCategory {
   id: string;
   name: string;
-  familyId?: string;
-  createdAt?: string;
+  familyId: string;
+  sortOrder: number;
+  createdAt: string;
 }
 
 export interface ApiDraft {
@@ -99,6 +96,7 @@ export interface ApiOrder {
 export interface LoginPayload {
   phone: string;
   name: string;
+  password: string;
 }
 
 export interface LoginResult extends ApiTokenPair {
@@ -153,10 +151,24 @@ export interface SetDefaultFamilyResult {
   defaultFamilyId: string;
 }
 
+export interface CreateCategoryPayload {
+  name: string;
+  sortOrder?: number;
+}
+
+export interface UpdateCategoryPayload {
+  categoryId: string;
+  name: string;
+  sortOrder?: number;
+}
+
+export interface UpdateCategoryOrderPayload {
+  categoryIds: string[];
+}
+
 export interface MenuListParams {
   [key: string]: string | undefined;
   search?: string;
-  category?: string;
   categoryId?: string;
 }
 
@@ -170,11 +182,21 @@ export interface CreateDishPayload {
   categoryId: string;
   images?: string[];
   image?: string;
-  categories?: string[];
-  category?: string;
-  ingredients?: string[];
-  garnishes?: string[];
-  accessories?: string[];
+  ingredients?: string;
+  garnishes?: string;
+  accessories?: string;
+  method?: string;
+}
+
+export interface UpdateDishPayload {
+  dishId: string;
+  name?: string;
+  categoryId?: string;
+  images?: string[];
+  image?: string;
+  ingredients?: string;
+  garnishes?: string;
+  accessories?: string;
   method?: string;
 }
 

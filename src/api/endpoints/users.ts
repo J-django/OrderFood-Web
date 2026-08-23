@@ -1,6 +1,6 @@
-import { get } from "@/api/modules/methods";
+import { post } from "@/api/modules/methods";
 import type { MeResult } from "@/types";
 
 export function getMe() {
-  return get<MeResult>("/me");
+  return post<MeResult>("/getMe");
 }

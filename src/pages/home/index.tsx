@@ -56,7 +56,8 @@ export default function HomePage() {
     };
   }, [currentFamilyId]);
 
-  const loading = Boolean(currentFamilyId) && loadedFamilyId !== currentFamilyId;
+  const loading =
+    Boolean(currentFamilyId) && loadedFamilyId !== currentFamilyId;
 
   const categoryTabs = useMemo(() => {
     const names = (menuResult?.categories ?? [])
@@ -75,7 +76,9 @@ export default function HomePage() {
 
     return allMenuItems.filter((item) => {
       if (!normalizedKeyword) {
-        return activeCategory === ALL_CATEGORY || item.category === activeCategory;
+        return (
+          activeCategory === ALL_CATEGORY || item.category === activeCategory
+        );
       }
 
       return [item.name, item.ingredients, item.seasonings]
@@ -120,7 +123,7 @@ export default function HomePage() {
       <div className="grid min-h-[calc(100dvh-var(--layout-bottom-offset))] place-items-center bg-white px-8 text-center">
         <div>
           <span className="icon-[lucide--users-round] mx-auto block size-8 text-[#b8b8b8]" />
-          <p className="mt-3 text-sm text-[#999]">请先选择或创建家庭</p>
+          <p className="mt-3 text-sm text-[#999]">请先创建家庭</p>
           <button
             type="button"
             onClick={() => navigate(routePaths.families)}
@@ -183,7 +186,8 @@ export default function HomePage() {
                 onClick={() => setActiveCategory(category)}
                 className={cn(
                   "block h-12 w-full truncate border-l-3 border-transparent px-3 text-left text-sm leading-12 font-bold text-[#555] transition-colors",
-                  isActive && "border-l-(--theme-color) bg-white text-(--theme-color)",
+                  isActive &&
+                    "border-l-(--theme-color) bg-white text-(--theme-color)",
                 )}
               >
                 {category}

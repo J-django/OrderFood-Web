@@ -14,13 +14,6 @@ import type { ApiMenuCategory } from "@/types";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
-function parseList(value: string) {
-  return value
-    .split(/[、,，\n]/)
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
 export default function AddDishPage() {
   useDocumentTitle("添加菜品");
   const navigate = useNavigate();
@@ -59,6 +52,18 @@ export default function AddDishPage() {
     reader.readAsDataURL(file);
   }
 
+  function openCategoryDrawer() {
+    if (categories.length === 0) {
+      toast.add({
+        type: "error",
+        title: "还没有菜品种类",
+        description: "请先添加菜品种类",
+      });
+      return;
+    }
+    setCategoryDrawerOpen(true);
+  }
+
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!name.trim()) {
@@ -66,7 +71,7 @@ export default function AddDishPage() {
       return;
     }
     if (!currentFamilyId) {
-      setError("请先选择家庭");
+      setError("请先创建家庭");
       return;
     }
     if (!categoryId) {
@@ -79,8 +84,8 @@ export default function AddDishPage() {
         name: name.trim(),
         categoryId,
         images: image ? [image] : undefined,
-        ingredients: parseList(ingredients),
-        garnishes: parseList(garnishes),
+        ingredients: ingredients.trim(),
+        garnishes: garnishes.trim(),
         method: method.trim(),
       });
       toast.add({ type: "success", title: "菜品已添加" });
@@ -90,6 +95,19 @@ export default function AddDishPage() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (!currentFamilyId) {
+    return (
+      <Page className="bg-[#f8f8f8]">
+        <Page.Header title="添加菜品" backTo={routePaths.profile} />
+        <Page.Content>
+          <div className="px-6 py-16 text-center text-sm text-[#999]">
+            请先创建家庭
+          </div>
+        </Page.Content>
+      </Page>
+    );
   }
 
   return (
@@ -108,7 +126,7 @@ export default function AddDishPage() {
             type="button"
             disablePressMotion={true}
             onClick={() => inputRef.current?.click()}
-            className="flex h-45 w-full flex-col items-center justify-center overflow-hidden rounded-2xl bg-white text-sm text-[#999]"
+            className="flex h-auto aspect-4/3 w-full flex-col items-center justify-center overflow-hidden rounded-2xl border-none bg-white px-0 text-sm text-[#999]"
           >
             {image ? (
               <img
@@ -135,13 +153,13 @@ export default function AddDishPage() {
           <Input
             value={ingredients}
             onChange={(event) => setIngredients(event.target.value)}
-            placeholder="食材（用逗号或顿号分隔）"
+            placeholder="食材"
             className="mt-2.5 h-10.5 w-full rounded-lg border-none bg-white px-3 text-sm outline-none placeholder:text-[#999]"
           />
           <Input
             value={garnishes}
             onChange={(event) => setGarnishes(event.target.value)}
-            placeholder="配料（用逗号或顿号分隔）"
+            placeholder="配料"
             className="mt-2.5 h-10.5 w-full rounded-lg border-none bg-white px-3 text-sm outline-none placeholder:text-[#999]"
           />
           <Textarea
@@ -154,7 +172,7 @@ export default function AddDishPage() {
           <Button
             type="button"
             disablePressMotion={true}
-            onClick={() => setCategoryDrawerOpen(true)}
+            onClick={openCategoryDrawer}
             className="mt-2.5 flex h-10.5 w-full items-center justify-between rounded-xl border-none bg-white px-3 text-left text-sm"
           >
             <span className={selectedCategory ? "text-[#222]" : "text-[#999]"}>

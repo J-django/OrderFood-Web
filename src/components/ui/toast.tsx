@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Toast as ToastPrimitive } from "@base-ui/react/toast";
+import { toast as sonnerToast } from "sonner";
 
 import { cn } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,26 @@ import {
   Loader2Icon,
 } from "lucide-react";
 
-const toast = ToastPrimitive.createToastManager();
+const baseToast = ToastPrimitive.createToastManager();
+
+type AppToastType = "success" | "info" | "warning" | "error" | "loading";
+
+interface AppToastInput {
+  type?: AppToastType;
+  title: string;
+  description?: string;
+}
+
+const toast = {
+  add({ type = "info", title, description }: AppToastInput) {
+    const options = description ? { description } : undefined;
+    if (type === "success") return sonnerToast.success(title, options);
+    if (type === "warning") return sonnerToast.warning(title, options);
+    if (type === "error") return sonnerToast.error(title, options);
+    if (type === "loading") return sonnerToast.loading(title, options);
+    return sonnerToast.info(title, options);
+  },
+};
 
 function ToastProvider({ ...props }: ToastPrimitive.Provider.Props) {
   return <ToastPrimitive.Provider {...props} />;
@@ -194,7 +214,7 @@ function ToastList() {
 
 function Toaster({
   children,
-  toastManager = toast,
+  toastManager = baseToast,
   ...props
 }: ToastPrimitive.Provider.Props) {
   return (

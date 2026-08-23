@@ -182,7 +182,7 @@ export default function DraftsPage() {
       <Page.Content>
         {!currentFamilyId ? (
           <div className="pt-32 text-center text-sm text-[#999]">
-            请先选择家庭
+            请先创建家庭
           </div>
         ) : loading ? (
           <div className="pt-32 text-center text-sm text-[#999]">加载中…</div>
