@@ -3,8 +3,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useNavigate } from "react-router";
 import { createDraft, updateDraft } from "@/api/endpoints/drafts";
 import { dishToMenuItem } from "@/api/endpoints/adapters";
-import { getMenu } from "@/api/endpoints/menu";
-import { FoodCard } from "@/components";
+import { createMenuCategory, getMenu } from "@/api/endpoints/menu";
+import { Dialog, FoodCard } from "@/components";
 import {
   InputGroup,
   InputGroupAddon,
@@ -14,6 +14,7 @@ import {
 import { routePaths } from "@/constants";
 import { useDocumentTitle } from "@/hooks";
 import { useCartStore, useFamilyStore } from "@/store";
+import { toast } from "@/components/ui/toast";
 import { cn } from "@/utils";
 import type { MenuListResult } from "@/types";
 
@@ -29,6 +30,9 @@ export default function HomePage() {
   const [activeCategory, setActiveCategory] = useState<string>(ALL_CATEGORY);
   const [keyword, setKeyword] = useState("");
   const [showSelected, setShowSelected] = useState(false);
+  const [categoryEditorOpen, setCategoryEditorOpen] = useState(false);
+  const [categoryName, setCategoryName] = useState("");
+  const [categorySaving, setCategorySaving] = useState(false);
   const selectedItems = useCartStore((state) => state.items);
   const toggleItem = useCartStore((state) => state.toggleItem);
   const clearSelected = useCartStore((state) => state.clear);
@@ -118,6 +122,36 @@ export default function HomePage() {
     navigate(routePaths.orderConfirm);
   }
 
+  function openCategoryEditor() {
+    setCategoryName("");
+    setCategoryEditorOpen(true);
+  }
+
+  function closeCategoryEditor() {
+    setCategoryName("");
+    setCategoryEditorOpen(false);
+  }
+
+  async function saveCategory() {
+    const trimmedName = categoryName.trim();
+    if (!trimmedName || categorySaving) return;
+    setCategorySaving(true);
+    try {
+      const category = await createMenuCategory({ name: trimmedName });
+      setMenuResult((current) =>
+        current
+          ? { ...current, categories: [...current.categories, category] }
+          : { categories: [category], items: [] },
+      );
+      closeCategoryEditor();
+      toast.add({ type: "success", title: "种类已添加" });
+    } catch {
+      /* 全局错误提示已处理 */
+    } finally {
+      setCategorySaving(false);
+    }
+  }
+
   if (!currentFamilyId) {
     return (
       <div className="grid min-h-[calc(100dvh-var(--layout-bottom-offset))] place-items-center bg-white px-8 text-center">
@@ -140,9 +174,12 @@ export default function HomePage() {
     <div className="relative flex h-[calc(100dvh-var(--layout-bottom-offset))] min-h-120 flex-col overflow-hidden bg-white">
       <header className="flex h-14 shrink-0 items-end bg-white px-2 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-2">
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <InputGroup className="h-9 min-w-0 flex-1 rounded-full border-0 bg-[#f3f3f3] shadow-none">
+          <InputGroup className="h-9 min-w-0 flex-1 rounded-full border-0 bg-[#f8f8f8] shadow-none">
             <InputGroupAddon align="inline-start" className="pl-2 text-[#999]">
-              <span className="icon-[lucide--search] size-5" aria-hidden="true" />
+              <span
+                className="icon-[lucide--search] size-5"
+                aria-hidden="true"
+              />
             </InputGroupAddon>
             <InputGroupInput
               type="search"
@@ -209,7 +246,7 @@ export default function HomePage() {
           <button
             type="button"
             aria-label="添加菜品种类"
-            onClick={() => navigate(routePaths.categories)}
+            onClick={openCategoryEditor}
             className="mx-2 my-2 flex h-9 shrink-0 items-center justify-center rounded-full bg-(--theme-color)/10 text-(--theme-color) transition-colors hover:opacity-90 active:opacity-80"
           >
             <span className="icon-[lucide--plus] size-5" aria-hidden="true" />
@@ -349,6 +386,33 @@ export default function HomePage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <Dialog
+        open={categoryEditorOpen}
+        title="添加菜品种类"
+        showCancel
+        confirmText={categorySaving ? "保存中…" : "保存"}
+        maskClosable={false}
+        classes={{
+          content: "pb-0.5",
+          confirmButton: "bg-(--theme-color)/10 text-(--theme-color)",
+        }}
+        onConfirm={() => void saveCategory()}
+        onCancel={closeCategoryEditor}
+        onClose={closeCategoryEditor}
+      >
+        <InputGroup className="h-10 rounded-full border-0 bg-[#f8f8f8] shadow-none">
+          <InputGroupInput
+            autoFocus
+            value={categoryName}
+            onChange={(event) => setCategoryName(event.target.value)}
+            placeholder="请输入种类名称"
+            aria-label="种类名称"
+            maxLength={100}
+            className="h-auto bg-transparent px-3.5 text-center text-[#333] placeholder:text-[#aaa]"
+          />
+        </InputGroup>
+      </Dialog>
     </div>
   );
 }

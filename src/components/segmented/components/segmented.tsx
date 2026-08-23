@@ -115,7 +115,7 @@ function SegmentedRoot({
         role="radiogroup"
         aria-disabled={disabled}
         className={cn(
-          "group/segmented relative inline-flex max-w-full items-center justify-center gap-0.5 rounded-full bg-[#ededed] p-0.5 text-[#777] data-[lc-width=full]:flex data-[lc-width=full]:w-full",
+          "group/segmented relative inline-flex max-w-full items-center justify-center gap-0.5 rounded-full bg-[#f8f8f8] p-0.5 text-[#777] data-[lc-width=full]:flex data-[lc-width=full]:w-full",
           disabled && "pointer-events-none opacity-60",
           className,
         )}

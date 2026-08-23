@@ -251,7 +251,7 @@ export default function FamilyDetailPage() {
             </p>
           </div>
         ) : (
-          <InputGroup className="h-10 rounded-full border-0 bg-[#f3f3f3] shadow-none">
+          <InputGroup className="h-10 rounded-full border-0 bg-[#f8f8f8] shadow-none">
             <InputGroupInput
               type="tel"
               value={phone}

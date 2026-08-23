@@ -367,7 +367,7 @@ export default function CategoriesPage() {
         onCancel={closeEditor}
         onClose={closeEditor}
       >
-        <InputGroup className="h-10 rounded-full border-0 bg-[#f3f3f3] shadow-none">
+        <InputGroup className="h-10 rounded-full border-0 bg-[#f8f8f8] shadow-none">
           <InputGroupInput
             autoFocus
             value={name}

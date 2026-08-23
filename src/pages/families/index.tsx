@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { createFamily, getFamilies, setDefaultFamily } from "@/api/endpoints/families";
+import {
+  createFamily,
+  getFamilies,
+  setDefaultFamily,
+} from "@/api/endpoints/families";
 import { Dialog, Page } from "@/components";
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -119,9 +123,7 @@ export default function FamiliesPage() {
       <Page.Content>
         <section className="flex flex-col gap-2.5 p-3" aria-label="家庭列表">
           {loading ? (
-            <div className="py-16 text-center text-sm text-[#999]">
-              加载中…
-            </div>
+            <div className="py-16 text-center text-sm text-[#999]">加载中…</div>
           ) : families.length === 0 ? (
             <div className="py-16 text-center text-sm text-[#999]">
               还没有家庭，点击右上角创建
@@ -186,7 +188,7 @@ export default function FamiliesPage() {
           setShowAddDialog(false);
         }}
       >
-        <InputGroup className="h-10 rounded-full border-0 bg-[#f3f3f3] shadow-none">
+        <InputGroup className="h-10 rounded-full border-0 bg-[#f8f8f8] shadow-none">
           <InputGroupInput
             value={familyName}
             onChange={(event) => setFamilyName(event.target.value)}

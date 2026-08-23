@@ -152,19 +152,76 @@ export default function DraftsPage() {
     }
   }
 
+  const editingMemoId =
+    memoEditor && memoEditor !== "new" ? memoEditor.id : null;
+
+  function renderMemoEditor(memo?: ApiMemo) {
+    return (
+      <article className="rounded-xl bg-white px-3 py-3">
+        <div className="flex items-center gap-2">
+          <Input
+            value={memoName}
+            onChange={(event) => setMemoName(event.target.value)}
+            placeholder="标题"
+            aria-label="备忘录标题"
+            maxLength={120}
+            className="h-9 min-w-0 flex-1 rounded-lg border-none bg-[#f8f8f8] px-3 text-sm outline-none"
+          />
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              aria-label="取消编辑备忘录"
+              onClick={closeMemoEditor}
+              disabled={memoSubmitting}
+              className="grid size-9 place-items-center rounded-full bg-stone-100 text-stone-700 transition-colors active:bg-stone-200 disabled:opacity-50"
+            >
+              <span className="icon-[lucide--x] size-4.5" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label="保存备忘录"
+              onClick={() => void handleSaveMemo()}
+              disabled={memoSubmitting}
+              className="grid size-9 place-items-center rounded-full bg-(--theme-color)/10 text-(--theme-color) transition-colors active:opacity-80 disabled:opacity-50"
+            >
+              <span
+                className="icon-[lucide--check] size-4.5"
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        </div>
+        <Textarea
+          value={memoContent}
+          onChange={(event) => setMemoContent(event.target.value)}
+          placeholder="内容"
+          aria-label="备忘录内容"
+          maxLength={10000}
+          rows={6}
+          className="mt-2 min-h-28 resize-none rounded-lg border-none bg-[#f8f8f8] px-3 py-2.5 text-sm outline-none"
+        />
+        {memo ? (
+          <time className="mt-2 block text-xs text-[#999]">
+            {formatTime(memo.updatedAt)}
+          </time>
+        ) : null}
+      </article>
+    );
+  }
+
   return (
     <Page className="bg-[#f8f8f8]">
       <Page.Header
         showBack={false}
         trailing={
-          activeTab === "memos" ? (
+          activeTab === "memos" && memoEditor === null ? (
             <button
               type="button"
               aria-label="添加备忘录"
               onClick={() => openMemoEditor()}
-              className="hover:bg-muted-foreground/15 active:bg-muted-foreground/15 grid size-10 place-items-center rounded-full transition-colors select-none"
+              className="grid size-9 shrink-0 place-items-center rounded-full bg-(--theme-color)/10 text-(--theme-color) transition-colors hover:opacity-90 active:opacity-80"
             >
-              <span className="icon-[tabler--plus] size-5.5" />
+              <span className="icon-[lucide--plus] size-5" aria-hidden="true" />
             </button>
           ) : null
         }
@@ -242,51 +299,57 @@ export default function DraftsPage() {
                     暂无草稿订单
                   </div>
                 )
-              ) : memos.length ? (
+              ) : (
                 <section className="space-y-2.5 p-2.5" aria-label="备忘录列表">
-                  {memos.map((memo) => (
-                    <article
-                      key={memo.id}
-                      className="rounded-xl bg-white px-3 py-3"
-                    >
-                      <header className="flex items-center justify-between gap-3">
-                        <h2 className="min-w-0 truncate text-sm font-semibold text-[#333]">
-                          {memo.name}
-                        </h2>
-                        <div className="flex shrink-0 items-center gap-3">
-                          <button
-                            type="button"
-                            aria-label={`编辑${memo.name}`}
-                            onClick={() => openMemoEditor(memo)}
-                            className="text-xs font-medium text-(--theme-color)"
-                          >
-                            编辑
-                          </button>
-                          {memo.userId === user?.id && (
+                  {memoEditor === "new" ? renderMemoEditor() : null}
+                  {memos.map((memo) =>
+                    editingMemoId === memo.id ? (
+                      <div key={memo.id}>{renderMemoEditor(memo)}</div>
+                    ) : (
+                      <article
+                        key={memo.id}
+                        className="rounded-xl bg-white px-3 py-3"
+                      >
+                        <header className="flex items-center justify-between gap-3">
+                          <h2 className="min-w-0 truncate text-sm font-semibold text-[#333]">
+                            {memo.name}
+                          </h2>
+                          <div className="flex shrink-0 items-center gap-3">
                             <button
                               type="button"
-                              aria-label={`删除${memo.name}`}
-                              onClick={() => setDeletingMemoId(memo.id)}
+                              aria-label={`编辑${memo.name}`}
+                              onClick={() => openMemoEditor(memo)}
                               className="text-xs font-medium text-(--theme-color)"
                             >
-                              删除
+                              编辑
                             </button>
-                          )}
-                          <time className="text-xs text-[#999]">
-                            {formatTime(memo.updatedAt)}
-                          </time>
-                        </div>
-                      </header>
-                      <p className="mt-2 truncate text-sm leading-5 whitespace-pre-wrap text-[#666]">
-                        {memo.content}
-                      </p>
-                    </article>
-                  ))}
+                            {memo.userId === user?.id && (
+                              <button
+                                type="button"
+                                aria-label={`删除${memo.name}`}
+                                onClick={() => setDeletingMemoId(memo.id)}
+                                className="text-xs font-medium text-(--theme-color)"
+                              >
+                                删除
+                              </button>
+                            )}
+                            <time className="text-xs text-[#999]">
+                              {formatTime(memo.updatedAt)}
+                            </time>
+                          </div>
+                        </header>
+                        <p className="mt-2 truncate text-sm leading-5 whitespace-pre-wrap text-[#666]">
+                          {memo.content}
+                        </p>
+                      </article>
+                    ),
+                  )}
+                  {!memos.length && memoEditor !== "new" ? (
+                    <div className="pt-32 text-center text-sm text-[#999]">
+                      暂无备忘录
+                    </div>
+                  ) : null}
                 </section>
-              ) : (
-                <div className="pt-32 text-center text-sm text-[#999]">
-                  暂无备忘录
-                </div>
               )}
             </motion.div>
           </AnimatePresence>
@@ -320,36 +383,6 @@ export default function DraftsPage() {
           </div>
         </div>
       )}
-      <Dialog
-        open={memoEditor !== null}
-        title={memoEditor === "new" ? "添加备忘录" : "编辑备忘录"}
-        showCancel
-        confirmText={memoSubmitting ? "保存中…" : "保存"}
-        maskClosable={false}
-        classes={{
-          content: "space-y-2.5 px-3 pt-3 pb-1 text-left",
-          confirmButton: "bg-(--theme-color)/10 text-(--theme-color)",
-        }}
-        onConfirm={() => void handleSaveMemo()}
-        onCancel={closeMemoEditor}
-        onClose={closeMemoEditor}
-      >
-        <Input
-          value={memoName}
-          onChange={(event) => setMemoName(event.target.value)}
-          placeholder="标题"
-          maxLength={120}
-          className="h-10 rounded-lg border-none bg-[#f3f3f3] px-3 text-sm outline-none"
-        />
-        <Textarea
-          value={memoContent}
-          onChange={(event) => setMemoContent(event.target.value)}
-          placeholder="内容"
-          maxLength={10000}
-          rows={6}
-          className="min-h-28 resize-none rounded-lg border-none bg-[#f3f3f3] px-3 py-2.5 text-sm outline-none"
-        />
-      </Dialog>
       <Dialog
         open={Boolean(deletingMemoId)}
         title="删除备忘录"
