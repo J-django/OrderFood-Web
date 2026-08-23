@@ -5,6 +5,7 @@ declare module 'axios' {
     authRetry?: boolean;
     metadata?: AxiosRequestMetadata;
     skipAuth?: boolean;
+    skipFamilyId?: boolean;
     skipGlobalErrorToast?: boolean;
     skipMonitoringReport?: boolean;
   }
@@ -12,6 +13,7 @@ declare module 'axios' {
   interface AxiosRequestConfig {
     authRetry?: boolean;
     skipAuth?: boolean;
+    skipFamilyId?: boolean;
     skipGlobalErrorToast?: boolean;
     skipMonitoringReport?: boolean;
   }

@@ -181,7 +181,7 @@ function setupAxiosAuth(client: AxiosInstance) {
         );
     }
 
-    if (!hasFamilyIdHeader(config.headers)) {
+    if (!config.skipFamilyId && !hasFamilyIdHeader(config.headers)) {
       const familyId = getCurrentFamilyId();
       if (familyId)
         config.headers = setRequestHeader(

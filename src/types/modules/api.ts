@@ -16,6 +16,7 @@ export type ApiRequestConfig<TData = unknown> = Omit<
   params?: ApiQuery;
   signal?: GenericAbortSignal;
   skipAuth?: boolean;
+  skipFamilyId?: boolean;
   skipGlobalErrorToast?: boolean;
   skipMonitoringReport?: boolean;
 };
