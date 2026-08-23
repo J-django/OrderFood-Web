@@ -69,6 +69,7 @@ export default function FamiliesPage() {
   async function handleConfirmAdd() {
     const trimmedName = familyName.trim();
     if (!trimmedName || creating) return;
+    const isFirstFamily = families.length === 0;
     setCreating(true);
     try {
       const family = await createFamily({
@@ -78,6 +79,14 @@ export default function FamiliesPage() {
       setFamilyName("");
       setShowAddDialog(false);
       if (!currentFamilyId) setCurrentFamily(family.id);
+      if (isFirstFamily) {
+        setDefaultFamilyId(family.id);
+        try {
+          await setDefaultFamilyRequest(family);
+        } catch {
+          setDefaultFamilyId(null);
+        }
+      }
     } catch {
       /* 全局错误提示已处理 */
     } finally {

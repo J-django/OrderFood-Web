@@ -121,8 +121,7 @@ export default function MenuDetailPage() {
     if (categories.length === 0) {
       toast.add({
         type: "error",
-        title: "还没有菜品种类",
-        description: "请先添加菜品种类",
+        title: "请先添加菜品种类",
       });
       return;
     }

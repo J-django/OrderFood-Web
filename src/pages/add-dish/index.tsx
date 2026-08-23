@@ -56,8 +56,7 @@ export default function AddDishPage() {
     if (categories.length === 0) {
       toast.add({
         type: "error",
-        title: "还没有菜品种类",
-        description: "请先添加菜品种类",
+        title: "请先添加菜品种类",
       });
       return;
     }
@@ -126,7 +125,7 @@ export default function AddDishPage() {
             type="button"
             disablePressMotion={true}
             onClick={() => inputRef.current?.click()}
-            className="flex h-auto aspect-4/3 w-full flex-col items-center justify-center overflow-hidden rounded-2xl border-none bg-white px-0 text-sm text-[#999]"
+            className="flex aspect-4/3 h-auto w-full flex-col items-center justify-center overflow-hidden rounded-2xl border-none bg-white px-0 text-sm text-[#999]"
           >
             {image ? (
               <img

@@ -35,7 +35,7 @@ export default function DraftsPage() {
     [],
   );
   const [memos, setMemos] = useState<ApiMemo[]>([]);
-  const [activeTab, setActiveTab] = useState("drafts");
+  const [activeTab, setActiveTab] = useState("memos");
   const [loadedFamilyId, setLoadedFamilyId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -174,8 +174,8 @@ export default function DraftsPage() {
             onValueChange={setActiveTab}
             aria-label="内容类型"
           >
-            <Segmented.Item value="drafts">草稿</Segmented.Item>
             <Segmented.Item value="memos">备忘录</Segmented.Item>
+            <Segmented.Item value="drafts">草稿</Segmented.Item>
           </Segmented>
         }
       />

@@ -139,61 +139,82 @@ export default function HomePage() {
   return (
     <div className="relative flex h-[calc(100dvh-var(--layout-bottom-offset))] min-h-120 flex-col overflow-hidden bg-white">
       <header className="flex h-14 shrink-0 items-end bg-white px-2 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-2">
-        <InputGroup className="h-9 rounded-full border-0 bg-[#f3f3f3] shadow-none">
-          <InputGroupAddon align="inline-start" className="pl-2 text-[#999]">
-            <span className="icon-[lucide--search] size-5" aria-hidden="true" />
-          </InputGroupAddon>
-          <InputGroupInput
-            type="search"
-            value={keyword}
-            onChange={(event) => setKeyword(event.target.value)}
-            placeholder="搜索菜名、食材、配料"
-            aria-label="搜索菜品"
-            className="h-auto bg-transparent text-sm text-[#333] placeholder:text-[#aaa] [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none"
-          />
-          {keyword && (
-            <InputGroupAddon align="inline-end" className="pr-1">
-              <InputGroupButton
-                type="button"
-                size="icon-xs"
-                aria-label="清空搜索"
-                onClick={() => setKeyword("")}
-                className="text-[#999] hover:text-[#555]"
-              >
-                <span className="icon-[lucide--circle-x] size-5" />
-              </InputGroupButton>
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <InputGroup className="h-9 min-w-0 flex-1 rounded-full border-0 bg-[#f3f3f3] shadow-none">
+            <InputGroupAddon align="inline-start" className="pl-2 text-[#999]">
+              <span className="icon-[lucide--search] size-5" aria-hidden="true" />
             </InputGroupAddon>
-          )}
-        </InputGroup>
+            <InputGroupInput
+              type="search"
+              value={keyword}
+              onChange={(event) => setKeyword(event.target.value)}
+              placeholder="搜索菜名、食材、配料"
+              aria-label="搜索菜品"
+              className="h-auto bg-transparent text-sm text-[#333] placeholder:text-[#aaa] [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none"
+            />
+            {keyword && (
+              <InputGroupAddon align="inline-end" className="pr-1">
+                <InputGroupButton
+                  type="button"
+                  size="icon-xs"
+                  aria-label="清空搜索"
+                  onClick={() => setKeyword("")}
+                  className="text-[#999] hover:text-[#555]"
+                >
+                  <span className="icon-[lucide--circle-x] size-5" />
+                </InputGroupButton>
+              </InputGroupAddon>
+            )}
+          </InputGroup>
+          <button
+            type="button"
+            aria-label="添加菜品"
+            onClick={() => navigate(routePaths.addDish)}
+            className="grid size-9 shrink-0 place-items-center rounded-full bg-(--theme-color)/10 text-(--theme-color) transition-colors hover:opacity-90 active:opacity-80"
+          >
+            <span className="icon-[lucide--plus] size-5" aria-hidden="true" />
+          </button>
+        </div>
       </header>
 
       <div className="flex min-h-0 flex-1">
         <aside
           className={cn(
-            "h-full w-25 shrink-0 overflow-y-auto rounded-tr-2xl bg-[#f8f8f8]",
+            "flex h-full w-25 shrink-0 flex-col overflow-hidden rounded-tr-2xl bg-[#f8f8f8]",
             selectedItems.length > 0 && "pb-14",
           )}
           aria-label="菜品分类"
         >
-          {categoryTabs.map((category) => {
-            const isActive = category === activeCategory;
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            {categoryTabs.map((category) => {
+              const isActive = category === activeCategory;
 
-            return (
-              <button
-                key={category}
-                type="button"
-                aria-pressed={isActive}
-                onClick={() => setActiveCategory(category)}
-                className={cn(
-                  "block h-12 w-full truncate border-l-3 border-transparent px-3 text-left text-sm leading-12 font-bold text-[#555] transition-colors",
-                  isActive &&
-                    "border-l-(--theme-color) bg-white text-(--theme-color)",
-                )}
-              >
-                {category}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={category}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => setActiveCategory(category)}
+                  className={cn(
+                    "block h-12 w-full truncate border-l-3 border-transparent px-3 text-left text-sm leading-12 font-bold text-[#555] transition-colors",
+                    isActive &&
+                      "border-l-(--theme-color) bg-white text-(--theme-color)",
+                  )}
+                >
+                  {category}
+                </button>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            aria-label="添加菜品种类"
+            onClick={() => navigate(routePaths.categories)}
+            className="mx-2 my-2 flex h-9 shrink-0 items-center justify-center rounded-full bg-(--theme-color)/10 text-(--theme-color) transition-colors hover:opacity-90 active:opacity-80"
+          >
+            <span className="icon-[lucide--plus] size-5" aria-hidden="true" />
+            <span className="ml-1 text-sm font-medium">种类</span>
+          </button>
         </aside>
 
         <section

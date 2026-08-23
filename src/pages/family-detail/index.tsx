@@ -82,8 +82,7 @@ export default function FamilyDetailPage() {
       if (!result.user) {
         toast.add({
           type: "error",
-          title: "未找到用户",
-          description: "该手机号尚未注册",
+          title: "该手机号尚未注册",
         });
         return;
       }

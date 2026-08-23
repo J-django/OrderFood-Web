@@ -360,6 +360,7 @@ export default function CategoriesPage() {
         confirmText={saving ? "保存中…" : "保存"}
         maskClosable={false}
         classes={{
+          content: "pb-0.5",
           confirmButton: "bg-(--theme-color)/10 text-(--theme-color)",
         }}
         onConfirm={() => void saveCategory()}

@@ -75,7 +75,7 @@ function Dialog(props: DialogProps) {
               <div
                 data-slot="dialog-header"
                 className={cn(
-                  "text-4.5 px-5 pt-5 text-center font-bold text-stone-900 select-none",
+                  "text-4.5 px-4 pt-4 text-center font-bold text-stone-900 select-none",
                   classes?.header,
                 )}
                 style={styles?.header}
