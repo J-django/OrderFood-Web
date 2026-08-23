@@ -90,7 +90,7 @@ export default function LoginPage() {
             <span className="icon-[lucide--utensils] size-8" />
           </div>
           <h1 className="mt-4 text-center text-xl font-semibold text-[#222]">
-            欢迎来到点餐
+            欢迎来到饭香香
           </h1>
           <p className="mt-1 text-center text-sm text-[#999]">
             登录后与家人一起点菜

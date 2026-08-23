@@ -1,4 +1,4 @@
-# Order Food
+# 饭香香
 
 面向移动端的 H5 点餐应用，使用 React、TypeScript 与 Vite 构建。工程分层参考 `LingCore-Web`，并保留可组合的插件注册机制。
 
