@@ -74,14 +74,14 @@ export default function ProfilePage() {
         </div>
       </section>
       <section
-        className="mx-3 overflow-hidden rounded-xl bg-white"
+        className="mx-2.5 overflow-hidden rounded-xl bg-white"
         aria-label="我的功能"
       >
         {profileEntries.map((entry) => (
           <Link
             key={entry.path}
             to={entry.path}
-            className="text-4 flex items-center justify-between border-b border-[#f0f0f0] px-3.5 py-2.5 text-[#222] last:border-b-0"
+            className="text-4 flex items-center justify-between border-b border-[#f0f0f0] px-3.5 py-3 text-[#222] last:border-b-0"
           >
             <span className="flex items-center gap-3">
               <span className={`${entry.icon} size-5 text-(--theme-color)`} />

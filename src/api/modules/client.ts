@@ -1,7 +1,6 @@
 import axios from "axios";
 import { showApiErrorToast } from "@/api/modules/error-notification";
 import { logger } from "@/logger";
-import { setupAxiosMonitoring } from "@/monitoring";
 import {
   getCurrentFamilyId,
   getUserAuthorizationHeader,
@@ -86,16 +85,12 @@ function logApiError(error: unknown) {
   const method = (error.config?.method || "get").toUpperCase();
   const url = error.config?.url || "/";
   const status = error.response?.status;
-  const durationMs =
-    Date.now() - (error.config?.metadata?.startedAt || Date.now());
 
   apiLogger.error("API request failed", {
     tags: { method, status: status ?? "network_error" },
     context: {
       url,
       baseURL: error.config?.baseURL,
-      requestId: error.config?.metadata?.requestId,
-      durationMs,
       code: error.code,
       authRetry: error.config?.authRetry,
       skipAuth: error.config?.skipAuth,
@@ -244,7 +239,6 @@ export function initializeApiClient() {
   if (apiInitialized) return apiClient;
   setupAxiosAuth(apiClient);
   setupAxiosErrorNotification(apiClient);
-  setupAxiosMonitoring(apiClient);
   apiInitialized = true;
   return apiClient;
 }

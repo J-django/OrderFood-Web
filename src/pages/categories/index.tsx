@@ -22,7 +22,7 @@ import {
   updateMenuCategoryOrder,
   updateMenuCategory,
 } from "@/api/endpoints/menu";
-import { Dialog, FamilyRequired, Page } from "@/components";
+import { ActionButton, Dialog, FamilyRequired, Page } from "@/components";
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { routePaths } from "@/constants";
 import { useDocumentTitle } from "@/hooks";
@@ -270,17 +270,16 @@ export default function CategoriesPage() {
         backTo={routePaths.profile}
         trailing={
           categories.length > 0 ? (
-            <button
+            <ActionButton
               type="button"
               aria-label={editing ? "保存菜品种类" : "编辑菜品种类"}
               onClick={() => (editing ? void saveEdits() : setEditing(true))}
               disabled={saving}
-              className={`hover:bg-muted-foreground/15 active:bg-muted-foreground/15 grid size-10 place-items-center rounded-full text-stone-700 transition-colors ${editing ? "bg-muted-foreground/15" : ""}`}
             >
               <span
                 className={`${editing ? "icon-[tabler--check-filled]" : "icon-[ci--edit-pencil-01]"} size-5.5`}
               />
-            </button>
+            </ActionButton>
           ) : null
         }
       />
@@ -293,7 +292,7 @@ export default function CategoriesPage() {
           </div>
         ) : categories.length === 0 ? (
           <section
-            className="mx-3 mt-3 overflow-hidden rounded-2xl bg-white"
+            className="mx-2.5 mt-2.5 overflow-hidden rounded-2xl bg-white"
             aria-label="菜品种类列表"
           >
             <div className="px-6 py-10 text-center text-[13px] text-[#999]">
@@ -310,7 +309,7 @@ export default function CategoriesPage() {
           </section>
         ) : (
           <section
-            className="mx-3 mt-3 overflow-hidden rounded-2xl bg-white"
+            className="mx-2.5 mt-2.5 overflow-hidden rounded-2xl bg-white"
             aria-label="菜品种类列表"
           >
             <DndContext
@@ -383,7 +382,7 @@ export default function CategoriesPage() {
         title="删除菜品种类"
         showCancel
         confirmText={saving ? "删除中…" : "删除"}
-        classes={{ confirmButton: "bg-red-50 text-red-500" }}
+        classes={{ confirmButton: "bg-(--lc-red)/10 text-(--lc-red)" }}
         onConfirm={() => void confirmDelete()}
         onCancel={() => setDeleting(null)}
         onClose={() => setDeleting(null)}

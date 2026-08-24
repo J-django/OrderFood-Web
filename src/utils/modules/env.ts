@@ -7,8 +7,4 @@ export const clientEnv = {
   appVersion: import.meta.env.VITE_APP_VERSION || '0.0.0',
   isProduction: import.meta.env.PROD,
   runtimeEnv: import.meta.env.MODE,
-  monitoringEnabled:
-    import.meta.env.PROD && import.meta.env.VITE_MONITORING_ENABLED !== 'false',
-  monitoringEndpoint: import.meta.env.VITE_MONITORING_ENDPOINT || '/monitoring/events',
-  monitoringSampleRate: Number(import.meta.env.VITE_MONITORING_SAMPLE_RATE || 1),
 };

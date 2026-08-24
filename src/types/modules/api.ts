@@ -18,7 +18,6 @@ export type ApiRequestConfig<TData = unknown> = Omit<
   skipAuth?: boolean;
   skipFamilyId?: boolean;
   skipGlobalErrorToast?: boolean;
-  skipMonitoringReport?: boolean;
 };
 
 export type ApiRequestOptions<TData = unknown> = ApiRequestConfig<TData> & {
@@ -56,8 +55,3 @@ export type ApiEndpointOptions<TData = unknown> = Omit<
   ApiRequestMethodOptions<TData>,
   "data" | "method" | "url"
 >;
-
-export type AxiosRequestMetadata = {
-  requestId: string;
-  startedAt: number;
-};

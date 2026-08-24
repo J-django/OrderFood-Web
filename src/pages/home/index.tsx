@@ -4,7 +4,13 @@ import { useNavigate } from "react-router";
 import { createDraft, updateDraft } from "@/api/endpoints/drafts";
 import { dishToMenuItem } from "@/api/endpoints/adapters";
 import { createMenuCategory, getMenu } from "@/api/endpoints/menu";
-import { Dialog, FamilyRequired, FoodCard } from "@/components";
+import {
+  ActionButton,
+  Dialog,
+  FamilyRequired,
+  FoodCard,
+  PresenceFade,
+} from "@/components";
 import {
   InputGroup,
   InputGroupAddon,
@@ -189,14 +195,15 @@ export default function HomePage() {
               </InputGroupAddon>
             )}
           </InputGroup>
-          <button
-            type="button"
-            aria-label="添加菜品"
-            onClick={() => navigate(routePaths.addDish)}
-            className="grid size-9 shrink-0 place-items-center rounded-full bg-(--theme-color)/10 text-(--theme-color) transition-colors hover:opacity-90 active:opacity-80"
-          >
-            <span className="icon-[lucide--plus] size-5" aria-hidden="true" />
-          </button>
+          <div className="flex size-10 items-center justify-center select-none">
+            <ActionButton
+              type="button"
+              aria-label="添加菜品"
+              onClick={() => navigate(routePaths.addDish)}
+            >
+              <span className="icon-[tabler--plus] size-5" aria-hidden="true" />
+            </ActionButton>
+          </div>
         </div>
       </header>
 
@@ -235,7 +242,7 @@ export default function HomePage() {
             onClick={openCategoryEditor}
             className="mx-2 my-2 flex h-9 shrink-0 items-center justify-center rounded-full bg-(--theme-color)/10 text-(--theme-color) transition-colors hover:opacity-90 active:opacity-80"
           >
-            <span className="icon-[lucide--plus] size-5" aria-hidden="true" />
+            <span className="icon-[tabler--plus] size-5" aria-hidden="true" />
             <span className="ml-1 text-sm font-medium">种类</span>
           </button>
         </aside>
@@ -247,37 +254,29 @@ export default function HomePage() {
           )}
           aria-label="菜品列表"
         >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={listStateKey}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, pointerEvents: "auto" }}
-              exit={{ opacity: 0, pointerEvents: "none" }}
-              transition={{ duration: 0.15, ease: "easeInOut" }}
-            >
-              {loading ? (
-                <div className="grid min-h-40 place-items-center px-5 text-center text-sm font-medium text-[#999]">
-                  加载中…
-                </div>
-              ) : visibleItems.length > 0 ? (
-                visibleItems.map((item) => (
-                  <FoodCard
-                    key={item.id}
-                    item={item}
-                    selected={selectedIds.has(item.id)}
-                    keyword={keyword}
-                    onToggle={toggleItem}
-                    linkTo={`/menu/${item.id}`}
-                    imageSize="lg"
-                  />
-                ))
-              ) : (
-                <div className="grid min-h-40 place-items-center px-5 text-center text-sm font-medium text-[#999]">
-                  未找到相关菜品
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
+          <PresenceFade stateKey={listStateKey}>
+            {loading ? (
+              <div className="grid min-h-40 place-items-center px-5 text-center text-sm font-medium text-[#999]">
+                加载中…
+              </div>
+            ) : visibleItems.length > 0 ? (
+              visibleItems.map((item) => (
+                <FoodCard
+                  key={item.id}
+                  item={item}
+                  selected={selectedIds.has(item.id)}
+                  keyword={keyword}
+                  onToggle={toggleItem}
+                  linkTo={`/menu/${item.id}`}
+                  imageSize="lg"
+                />
+              ))
+            ) : (
+              <div className="grid min-h-40 place-items-center px-5 text-center text-sm font-medium text-[#999]">
+                未找到相关菜品
+              </div>
+            )}
+          </PresenceFade>
         </section>
       </div>
 

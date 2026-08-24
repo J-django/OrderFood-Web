@@ -5,7 +5,6 @@ export * from "./modules/auth";
 export * from "./modules/api-endpoints";
 export * from "./modules/store";
 export * from "./modules/logger";
-export * from "./modules/monitoring";
 export * from "./modules/plugin";
 export * from "./modules/draft";
 export * from "./modules/order";

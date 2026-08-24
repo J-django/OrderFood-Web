@@ -103,81 +103,83 @@ export default function AddDishPage() {
         {!currentFamilyId ? (
           <FamilyRequired className="min-h-full" />
         ) : (
-          <form onSubmit={submit} className="p-3.5">
-          <Input
-            ref={inputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={chooseImage}
-          />
-          <Button
-            type="button"
-            disablePressMotion={true}
-            onClick={() => inputRef.current?.click()}
-            className="flex aspect-4/3 h-auto w-full flex-col items-center justify-center overflow-hidden rounded-2xl border-none bg-white px-0 text-sm text-[#999]"
-          >
-            {image ? (
-              <img
-                src={image}
-                alt="菜品预览"
-                className="size-full object-cover"
-              />
-            ) : (
-              <>
-                <span className="icon-[lucide--plus] size-7" />
-                <span className="mt-2">选择菜品图片</span>
-              </>
-            )}
-          </Button>
-          <Input
-            value={name}
-            onChange={(event) => {
-              setName(event.target.value);
-              setError("");
-            }}
-            placeholder="菜名"
-            className="mt-2.5 h-10.5 w-full rounded-lg border-none bg-white px-3 text-sm outline-none placeholder:text-[#999]"
-          />
-          <Input
-            value={ingredients}
-            onChange={(event) => setIngredients(event.target.value)}
-            placeholder="食材"
-            className="mt-2.5 h-10.5 w-full rounded-lg border-none bg-white px-3 text-sm outline-none placeholder:text-[#999]"
-          />
-          <Input
-            value={garnishes}
-            onChange={(event) => setGarnishes(event.target.value)}
-            placeholder="配料"
-            className="mt-2.5 h-10.5 w-full rounded-lg border-none bg-white px-3 text-sm outline-none placeholder:text-[#999]"
-          />
-          <Textarea
-            value={method}
-            onChange={(event) => setMethod(event.target.value)}
-            rows={5}
-            placeholder="做法"
-            className="mt-2.5 min-h-20 w-full resize-none rounded-xl border-none bg-white px-3 py-2.5 text-sm leading-5 outline-none placeholder:text-[#999]"
-          />
-          <Button
-            type="button"
-            disablePressMotion={true}
-            onClick={openCategoryDrawer}
-            className="mt-2.5 flex h-10.5 w-full items-center justify-between rounded-xl border-none bg-white px-3 text-left text-sm"
-          >
-            <span className={selectedCategory ? "text-[#222]" : "text-[#999]"}>
-              {selectedCategory?.name || "菜品种类"}
-            </span>
-            <span className="icon-[lucide--chevron-right] size-4 text-[#999]" />
-          </Button>
-          {error && <p className="mt-2 text-xs text-[#e53e20]">{error}</p>}
-          <Button
-            type="submit"
-            disablePressMotion={true}
-            disabled={submitting}
-            className="mt-5 h-10.5 w-full rounded-full bg-(--theme-color) text-sm font-semibold text-white disabled:opacity-50"
-          >
-            {submitting ? "保存中…" : "保存菜品"}
-          </Button>
+          <form onSubmit={submit} className="p-2.5">
+            <Input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={chooseImage}
+            />
+            <Button
+              type="button"
+              disablePressMotion={true}
+              onClick={() => inputRef.current?.click()}
+              className="flex aspect-4/3 h-auto w-full flex-col items-center justify-center overflow-hidden rounded-2xl border-none bg-white px-0 text-sm text-[#999]"
+            >
+              {image ? (
+                <img
+                  src={image}
+                  alt="菜品预览"
+                  className="size-full object-cover"
+                />
+              ) : (
+                <>
+                  <span className="icon-[tabler--plus] size-7" />
+                  <span className="mt-2">选择菜品图片</span>
+                </>
+              )}
+            </Button>
+            <Input
+              value={name}
+              onChange={(event) => {
+                setName(event.target.value);
+                setError("");
+              }}
+              placeholder="菜名"
+              className="mt-2.5 h-10.5 w-full rounded-lg border-none bg-white px-3 text-sm outline-none placeholder:text-[#999]"
+            />
+            <Input
+              value={ingredients}
+              onChange={(event) => setIngredients(event.target.value)}
+              placeholder="食材"
+              className="mt-2.5 h-10.5 w-full rounded-lg border-none bg-white px-3 text-sm outline-none placeholder:text-[#999]"
+            />
+            <Input
+              value={garnishes}
+              onChange={(event) => setGarnishes(event.target.value)}
+              placeholder="配料"
+              className="mt-2.5 h-10.5 w-full rounded-lg border-none bg-white px-3 text-sm outline-none placeholder:text-[#999]"
+            />
+            <Textarea
+              value={method}
+              onChange={(event) => setMethod(event.target.value)}
+              rows={5}
+              placeholder="做法"
+              className="mt-2.5 min-h-20 w-full resize-none rounded-xl border-none bg-white px-3 py-2.5 text-sm leading-5 outline-none placeholder:text-[#999]"
+            />
+            <Button
+              type="button"
+              disablePressMotion={true}
+              onClick={openCategoryDrawer}
+              className="mt-2.5 flex h-10.5 w-full items-center justify-between rounded-xl border-none bg-white px-3 text-left text-sm"
+            >
+              <span
+                className={selectedCategory ? "text-[#222]" : "text-[#999]"}
+              >
+                {selectedCategory?.name || "菜品种类"}
+              </span>
+              <span className="icon-[lucide--chevron-right] size-4 text-[#999]" />
+            </Button>
+            {error && <p className="mt-2 text-xs text-[#e53e20]">{error}</p>}
+            <Button
+              type="submit"
+              disablePressMotion={true}
+              disabled={submitting}
+              className="mt-5 h-10.5 w-full rounded-full bg-(--theme-color) text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {submitting ? "保存中…" : "保存菜品"}
+            </Button>
           </form>
         )}
       </Page.Content>

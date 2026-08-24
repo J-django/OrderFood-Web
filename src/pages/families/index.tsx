@@ -5,7 +5,7 @@ import {
   getFamilies,
   setDefaultFamily,
 } from "@/api/endpoints/families";
-import { Dialog, Page } from "@/components";
+import { ActionButton, Dialog, Page } from "@/components";
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { routePaths } from "@/constants";
@@ -110,18 +110,17 @@ export default function FamiliesPage() {
         title="我的家庭"
         backTo={routePaths.profile}
         trailing={
-          <button
+          <ActionButton
             type="button"
             aria-label="添加家庭"
             onClick={() => setShowAddDialog(true)}
-            className="hover:bg-muted-foreground/15 active:bg-muted-foreground/15 grid size-10 place-items-center rounded-full text-stone-700 transition-colors select-none"
           >
-            <span className="icon-[tabler--plus] size-6" />
-          </button>
+            <span className="icon-[tabler--plus] size-5" />
+          </ActionButton>
         }
       />
       <Page.Content>
-        <section className="flex flex-col gap-2.5 p-3" aria-label="家庭列表">
+        <section className="flex flex-col gap-2.5 p-2.5" aria-label="家庭列表">
           {loading ? (
             <div className="py-16 text-center text-sm text-[#999]">加载中…</div>
           ) : families.length === 0 ? (
@@ -133,7 +132,7 @@ export default function FamiliesPage() {
               <Link
                 key={family.id}
                 to={routePaths.familyDetail(family.id)}
-                className="flex items-center justify-between gap-3 rounded-xl bg-white px-3 py-2.5"
+                className="flex items-center justify-between gap-3 rounded-2xl bg-white px-3 py-2.5"
                 aria-label={`家庭 ${family.name}`}
               >
                 <div className="min-w-0 flex-1">

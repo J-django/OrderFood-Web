@@ -7,7 +7,7 @@ import {
   removeFamilyMember,
   searchFamilyInvitation,
 } from "@/api/endpoints/families";
-import { Dialog, Page } from "@/components";
+import { ActionButton, Dialog, Page } from "@/components";
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { routePaths } from "@/constants";
 import { useDocumentTitle } from "@/hooks";
@@ -138,16 +138,15 @@ export default function FamilyDetailPage() {
         backTo={routePaths.families}
         trailing={
           isOwner && family.members.length > 1 ? (
-            <button
+            <ActionButton
               type="button"
               aria-label={editingMembers ? "完成编辑成员" : "编辑成员"}
               onClick={() => setEditingMembers((editing) => !editing)}
-              className={`hover:bg-muted-foreground/15 active:bg-muted-foreground/15 grid size-10 place-items-center rounded-full text-stone-700 transition-colors select-none ${editingMembers ? "bg-muted-foreground/15" : ""}`}
             >
               <span
                 className={`${editingMembers ? "icon-[fa7-solid--close]" : "icon-[tabler--pencil]"} size-5.5`}
               />
-            </button>
+            </ActionButton>
           ) : null
         }
       />
