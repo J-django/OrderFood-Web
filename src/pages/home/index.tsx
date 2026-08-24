@@ -210,7 +210,7 @@ export default function HomePage() {
       <div className="flex min-h-0 flex-1">
         <aside
           className={cn(
-            "flex h-full w-25 shrink-0 flex-col overflow-hidden rounded-tr-2xl bg-[#f8f8f8]",
+            "flex h-full w-25 shrink-0 flex-col bg-[#f8f8f8]",
             selectedItems.length > 0 && "pb-14",
           )}
           aria-label="菜品分类"
