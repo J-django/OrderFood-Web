@@ -171,7 +171,7 @@ export function FoodCard({
               aria-pressed={selected}
               onClick={handleToggle}
               className={cn(
-                "relative z-10 ml-1.5 flex size-5 shrink-0 translate-x-0.5 -translate-y-0.5 items-center justify-center rounded-full text-white transition-colors before:absolute before:top-1/2 before:left-1/2 before:size-9 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:content-['']",
+                "relative z-10 ml-1.5 flex size-5 shrink-0 translate-x-0.5 -translate-y-0.5 cursor-pointer items-center justify-center rounded-full text-white transition-colors before:absolute before:top-1/2 before:left-1/2 before:size-9 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:content-['']",
                 selected
                   ? "bg-[#999] active:bg-[#777]"
                   : "bg-(--theme-color) active:bg-(--theme-color-active)",

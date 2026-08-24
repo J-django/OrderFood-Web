@@ -210,7 +210,7 @@ export default function HomePage() {
       <div className="flex min-h-0 flex-1">
         <aside
           className={cn(
-            "flex h-full w-25 shrink-0 flex-col bg-[#f8f8f8]",
+            "flex h-full w-25 shrink-0 flex-col overflow-hidden rounded-tl-lg bg-[#f8f8f8] transition-[padding-bottom] duration-350",
             selectedItems.length > 0 && "pb-14",
           )}
           aria-label="菜品分类"
@@ -226,7 +226,7 @@ export default function HomePage() {
                   aria-pressed={isActive}
                   onClick={() => setActiveCategory(category)}
                   className={cn(
-                    "block h-12 w-full truncate border-l-3 border-transparent px-3 text-left text-sm leading-12 font-bold text-[#555] transition-colors",
+                    "block h-12 w-full cursor-pointer truncate border-l-3 border-transparent px-3 text-left text-sm leading-12 font-bold text-[#555] transition-colors",
                     isActive &&
                       "border-l-(--theme-color) bg-white text-(--theme-color)",
                   )}
@@ -249,7 +249,7 @@ export default function HomePage() {
 
         <section
           className={cn(
-            "min-w-0 flex-1 overflow-y-auto bg-white",
+            "min-w-0 flex-1 overflow-y-auto rounded-tr-lg bg-white",
             selectedItems.length > 0 && "pb-14",
           )}
           aria-label="菜品列表"
@@ -348,7 +348,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setShowSelected((open) => !open)}
-              className="min-w-0 flex-1 truncate text-left text-[#222]"
+              className="min-w-0 flex-1 truncate text-left font-medium text-[#222]"
             >
               已选 {selectedItems.length} 道菜
             </button>
