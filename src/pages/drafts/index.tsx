@@ -117,7 +117,7 @@ function EditMemo({
   return (
     <article
       data-time={formatDate(updatedAt)}
-      className="relative isolate z-10 rounded-2xl bg-white px-3 pb-2.5 before:pointer-events-none before:absolute before:-top-2 before:left-1/2 before:h-4 before:w-min before:-translate-x-1/2 before:rounded-full before:bg-white before:px-1.5 before:text-center before:text-[13px] before:leading-4 before:whitespace-nowrap before:text-[#999] before:shadow-xs before:content-[attr(data-time)]"
+      className="relative isolate z-10 rounded-2xl bg-white pb-2.5 before:pointer-events-none before:absolute before:-top-2 before:left-1/2 before:h-4 before:w-min before:-translate-x-1/2 before:rounded-full before:bg-white before:px-1.5 before:text-center before:text-[13px] before:leading-4 before:whitespace-nowrap before:text-[#999] before:shadow-xs before:content-[attr(data-time)]"
     >
       <header className="flex items-center gap-2">
         <Input
