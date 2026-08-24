@@ -11,6 +11,7 @@ import {
 import { draftToMenuDraft } from "@/api/endpoints/adapters";
 import {
   ActionButton,
+  ConditionalPresence,
   Dialog,
   FamilyRequired,
   FoodCard,
@@ -117,7 +118,7 @@ function EditMemo({
   return (
     <article
       data-time={formatDate(updatedAt)}
-      className="relative isolate z-10 rounded-2xl bg-white before:pointer-events-none before:absolute before:-top-2 before:left-1/2 before:h-4 before:w-min before:-translate-x-1/2 before:rounded-full before:bg-white before:px-1.5 before:text-center before:text-[13px] before:leading-4 before:whitespace-nowrap before:text-[#999] before:shadow-xs before:content-[attr(data-time)]"
+      className="relative isolate z-10 rounded-2xl bg-white before:pointer-events-none before:absolute before:-top-2 before:left-1/2 before:h-4 before:w-min before:-translate-x-1/2 before:rounded-[6px] before:bg-white before:px-1.5 before:text-center before:text-[13px] before:leading-4 before:whitespace-nowrap before:text-[#999] before:shadow-xs before:content-[attr(data-time)]"
     >
       <header className="flex items-center gap-2">
         <Input
@@ -185,7 +186,7 @@ function MemoInfo({ memo, canDelete, onEdit, onDelete }: MemoInfoCardProps) {
           onEdit();
         }
       }}
-      className="relative isolate z-10 cursor-pointer rounded-2xl bg-white px-3 pb-2.5 before:pointer-events-none before:absolute before:-top-2 before:left-1/2 before:h-4 before:w-min before:-translate-x-1/2 before:rounded-full before:bg-white before:px-1.5 before:text-center before:text-[13px] before:leading-4 before:whitespace-nowrap before:text-[#999] before:shadow-xs before:content-[attr(data-time)]"
+      className="relative isolate z-10 cursor-pointer rounded-2xl bg-white px-3 pb-2.5 before:pointer-events-none before:absolute before:-top-2 before:left-1/2 before:h-4 before:w-min before:-translate-x-1/2 before:rounded-[6px] before:bg-white before:px-1.5 before:text-center before:text-[13px] before:leading-4 before:whitespace-nowrap before:text-[#999] before:shadow-xs before:content-[attr(data-time)]"
     >
       <header className="flex h-9 items-center justify-between gap-3">
         <h2 className="text-md min-w-0 truncate font-semibold text-[#333]">
@@ -377,7 +378,13 @@ export default function DraftsPage() {
       <Page.Header
         showBack={false}
         trailing={
-          activeTab === "memos" && currentFamilyId && newMemo === null ? (
+          <ConditionalPresence
+            show={
+              activeTab === "memos" &&
+              Boolean(currentFamilyId) &&
+              newMemo === null
+            }
+          >
             <ActionButton
               type="button"
               aria-label="添加备忘录"
@@ -385,7 +392,7 @@ export default function DraftsPage() {
             >
               <span className="icon-[tabler--plus] size-5" aria-hidden="true" />
             </ActionButton>
-          ) : null
+          </ConditionalPresence>
         }
         title={
           <Segmented
@@ -411,35 +418,51 @@ export default function DraftsPage() {
           <PresenceFade stateKey={activeTab} className="min-h-full">
             {activeTab === "drafts" ? (
               drafts.length ? (
-                <section className="space-y-2.5 p-2.5" aria-label="草稿列表">
+                <section
+                  className="space-y-4 px-2.5 pt-3.5 pb-2.5"
+                  aria-label="草稿列表"
+                >
                   {drafts.map((draft) => (
                     <article
                       key={draft.id}
-                      className="overflow-hidden rounded-xl bg-white"
+                      data-time={formatDate(draft.updatedAt)}
+                      className="relative isolate z-10 rounded-2xl bg-white px-3 before:pointer-events-none before:absolute before:-top-2 before:left-1/2 before:h-4 before:w-min before:-translate-x-1/2 before:rounded-[6px] before:bg-white before:px-1.5 before:text-center before:text-[13px] before:leading-4 before:whitespace-nowrap before:text-[#999] before:shadow-xs before:content-[attr(data-time)]"
                     >
-                      <header className="flex items-center justify-between border-b border-[#f0f0f0] px-3 py-2 text-sm text-[#555]">
-                        <span>
-                          草稿{draft.name ? `「${draft.name}」` : " "}
-                          {formatDate(draft.updatedAt)}
-                        </span>
-                        <span className="flex gap-4 font-medium text-(--theme-color)">
-                          <button
+                      <header className="flex h-9 items-center justify-between gap-3">
+                        <h2 className="min-w-0 truncate text-sm font-semibold text-[#333]">
+                          草稿{draft.name ? `「${draft.name}」` : ""}
+                        </h2>
+                        <div className="flex translate-x-2 translate-y-1 items-center gap-1">
+                          <ActionButton
                             type="button"
-                            onClick={() => editDraft(draft.id)}
-                          >
-                            编辑
-                          </button>
-                          <button
-                            className="font-medium"
-                            type="button"
+                            variant="danger"
+                            aria-label="删除草稿"
                             onClick={() => setDeletingId(draft.id)}
                           >
-                            删除
-                          </button>
-                        </span>
+                            <span
+                              className="icon-[tabler--x] size-4"
+                              aria-hidden="true"
+                            />
+                          </ActionButton>
+                          <ActionButton
+                            className="flex w-auto items-center gap-1.5 px-3"
+                            type="button"
+                            variant="primary"
+                            aria-label="编辑草稿"
+                            onClick={() => editDraft(draft.id)}
+                          >
+                            <span
+                              className="icon-[tabler--pencil] size-4.5"
+                              aria-hidden="true"
+                            />
+
+                            <span className="text-sm font-medium">编辑</span>
+                          </ActionButton>
+                        </div>
                       </header>
                       {(draft.items ?? []).map((item) => (
                         <FoodCard
+                          className="px-0 first-of-type:pt-0"
                           key={item.id}
                           item={item}
                           imageSize="md"
@@ -513,34 +536,20 @@ export default function DraftsPage() {
           </PresenceFade>
         )}
       </Page.Content>
-      {deletingId && (
-        <div
-          className="absolute inset-0 z-50 grid place-items-center bg-black/40 px-8"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="w-full max-w-80 rounded-2xl bg-white p-5 text-center">
-            <h2 className="text-base font-semibold text-[#222]">删除草稿</h2>
-            <p className="mt-2 text-sm text-[#777]">确认删除此草稿吗？</p>
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setDeletingId(null)}
-                className="h-10 rounded-full bg-[#f4f4f4] text-sm"
-              >
-                取消
-              </button>
-              <button
-                type="button"
-                onClick={() => void handleDelete()}
-                className="h-10 rounded-full bg-(--theme-color) text-sm text-white"
-              >
-                删除
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
+      <Dialog
+        open={Boolean(deletingId)}
+        title="删除草稿"
+        content="确认删除此草稿吗？"
+        showCancel
+        confirmText={deleting ? "删除中…" : "删除"}
+        maskClosable={false}
+        classes={{ confirmButton: "bg-(--lc-red)/10 text-(--lc-red)" }}
+        onConfirm={() => void handleDelete()}
+        onCancel={() => setDeletingId(null)}
+        onClose={() => setDeletingId(null)}
+      />
+
       <Dialog
         open={Boolean(deletingMemoId)}
         title="删除备忘录"

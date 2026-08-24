@@ -28,7 +28,6 @@ export default function AddDishPage() {
   const [categoryId, setCategoryId] = useState("");
   const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!currentFamilyId) return;
@@ -66,15 +65,15 @@ export default function AddDishPage() {
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!name.trim()) {
-      setError("请输入菜名");
+      toast.add({ type: "error", title: "请输入菜名" });
       return;
     }
     if (!currentFamilyId) {
-      setError("请先创建家庭");
+      toast.add({ type: "error", title: "请先创建家庭" });
       return;
     }
     if (!categoryId) {
-      setError("请选择菜品种类");
+      toast.add({ type: "error", title: "请选择菜品种类" });
       return;
     }
     setSubmitting(true);
@@ -130,12 +129,22 @@ export default function AddDishPage() {
                 </>
               )}
             </Button>
+            <Button
+              type="button"
+              disablePressMotion={true}
+              onClick={openCategoryDrawer}
+              className="mt-2.5 flex h-10.5 w-full items-center justify-between rounded-xl border-none bg-white px-3 text-left text-sm"
+            >
+              <span
+                className={selectedCategory ? "text-[#222]" : "text-[#999]"}
+              >
+                {selectedCategory?.name || "种类"}
+              </span>
+              <span className="icon-[lucide--chevron-right] size-5 text-[#999]" />
+            </Button>
             <Input
               value={name}
-              onChange={(event) => {
-                setName(event.target.value);
-                setError("");
-              }}
+              onChange={(event) => setName(event.target.value)}
               placeholder="菜名"
               className="mt-2.5 h-10.5 w-full rounded-lg border-none bg-white px-3 text-sm outline-none placeholder:text-[#999]"
             />
@@ -158,20 +167,6 @@ export default function AddDishPage() {
               placeholder="做法"
               className="mt-2.5 min-h-20 w-full resize-none rounded-xl border-none bg-white px-3 py-2.5 text-sm leading-5 outline-none placeholder:text-[#999]"
             />
-            <Button
-              type="button"
-              disablePressMotion={true}
-              onClick={openCategoryDrawer}
-              className="mt-2.5 flex h-10.5 w-full items-center justify-between rounded-xl border-none bg-white px-3 text-left text-sm"
-            >
-              <span
-                className={selectedCategory ? "text-[#222]" : "text-[#999]"}
-              >
-                {selectedCategory?.name || "菜品种类"}
-              </span>
-              <span className="icon-[lucide--chevron-right] size-4 text-[#999]" />
-            </Button>
-            {error && <p className="mt-2 text-xs text-[#e53e20]">{error}</p>}
             <Button
               type="submit"
               disablePressMotion={true}

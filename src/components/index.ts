@@ -1,5 +1,6 @@
 export * from "./dialog";
 export * from "./action-button";
+export * from "./conditional-presence";
 export * from "./family-required";
 export * from "./food-card";
 export * from "./image";

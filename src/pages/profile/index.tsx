@@ -1,4 +1,5 @@
-import { Link } from "react-router";
+import { ActionButton } from "@/components";
+import { Link, useNavigate } from "react-router";
 import { logout } from "@/api";
 import { useDocumentTitle } from "@/hooks";
 import { toast } from "@/components/ui/toast";
@@ -29,6 +30,7 @@ const profileEntries = [
 
 export default function ProfilePage() {
   useDocumentTitle("我的");
+  const navigate = useNavigate();
   const user = useUserStore((state) => state.user);
   const orderedDishCount = useUserStore((state) => state.orderedDishCount);
   const clearAuth = useUserStore((state) => state.clearAuth);
@@ -42,8 +44,8 @@ export default function ProfilePage() {
     } finally {
       clearAuth();
       setCurrentFamily(null);
+      navigate("/login", { replace: true });
       toast.add({ type: "success", title: "已退出登录" });
-      window.location.assign("/login");
     }
   }
 
@@ -64,27 +66,31 @@ export default function ProfilePage() {
                 : `已点过 ${orderedDishCount} 道菜`}
             </p>
           </div>
-          <button
-            type="button"
+          <ActionButton
+            className="ml-auto w-auto px-3"
+            variant="primary"
             onClick={handleLogout}
-            className="ml-auto h-8 rounded-full border border-stone-200 px-3.5 text-xs font-medium text-stone-500 active:bg-stone-100"
           >
-            退出登录
-          </button>
+            <span className="text-sm font-medium">退出登录</span>
+          </ActionButton>
         </div>
       </section>
       <section
-        className="mx-2.5 overflow-hidden rounded-xl bg-white"
+        className="mx-2.5 overflow-hidden rounded-2xl bg-white"
         aria-label="我的功能"
       >
         {profileEntries.map((entry) => (
           <Link
             key={entry.path}
             to={entry.path}
-            className="text-4 flex items-center justify-between border-b border-[#f0f0f0] px-3.5 py-3 text-[#222] last:border-b-0"
+            className="text-4 relative flex items-center justify-between px-3 py-2 text-[#222] after:absolute after:right-3 after:bottom-0 after:left-3 after:h-px after:bg-[#f0f0f0] after:content-[''] last:after:hidden"
           >
             <span className="flex items-center gap-3">
-              <span className={`${entry.icon} size-5 text-(--theme-color)`} />
+              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-(--theme-color-soft) text-(--theme-color)">
+                <span
+                  className={`${entry.icon} size-4.5 text-(--theme-color)`}
+                />
+              </span>
               <span className="text-sm">{entry.title}</span>
             </span>
             <span className="icon-[lucide--chevron-right] size-5 text-[#999]" />

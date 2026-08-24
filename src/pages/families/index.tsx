@@ -159,7 +159,10 @@ export default function FamiliesPage() {
                         onValueChange={() => handleSelectDefault(family)}
                         className="w-auto gap-0"
                       >
-                        <RadioGroupItem value={family.id} />
+                        <RadioGroupItem
+                          className="border-(--theme-color)! bg-(--theme-color)!"
+                          value={family.id}
+                        />
                       </RadioGroup>
                     </label>
                   </div>

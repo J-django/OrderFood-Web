@@ -13,7 +13,6 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import {
   createMenuCategory,
@@ -22,7 +21,14 @@ import {
   updateMenuCategoryOrder,
   updateMenuCategory,
 } from "@/api/endpoints/menu";
-import { ActionButton, Dialog, FamilyRequired, Page } from "@/components";
+import {
+  ActionButton,
+  ConditionalPresence,
+  Dialog,
+  FamilyRequired,
+  Page,
+  PresenceFade,
+} from "@/components";
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { routePaths } from "@/constants";
 import { useDocumentTitle } from "@/hooks";
@@ -57,27 +63,32 @@ function SortableCategoryRow({
   return (
     <div
       ref={setNodeRef}
-      style={{
-        transform: CSS.Transform.toString(transform),
-        transition,
-      }}
-      className={`flex items-center gap-3 border-b border-stone-100 px-3 py-2 last:border-b-0 ${isDragging ? "relative z-10 bg-white shadow-sm" : ""}`}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={`relative flex items-center gap-3 rounded-xl px-3 py-2 after:absolute after:right-3 after:bottom-0 after:left-3 after:h-px after:bg-stone-100 after:content-[''] last:after:hidden ${isDragging ? "z-10 bg-white shadow-sm" : ""}`}
     >
-      {editing ? (
-        <button
-          type="button"
-          aria-label={`拖动${category.name}`}
-          className="bg-muted-foreground/15 grid size-7 shrink-0 touch-none place-items-center rounded-full text-stone-500"
-          {...attributes}
-          {...listeners}
-        >
-          <span className="icon-[akar-icons--drag-horizontal-fill] size-4" />
-        </button>
-      ) : (
-        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-(--theme-color-soft) text-(--theme-color)">
-          <span className="icon-[lucide--tag] size-3.5" />
-        </span>
-      )}
+      <PresenceFade
+        as="span"
+        mode="popLayout"
+        duration={0.35}
+        stateKey={editing ? "editing" : "viewing"}
+        className="inline-flex size-8 shrink-0"
+      >
+        {editing ? (
+          <button
+            type="button"
+            aria-label={`拖动${category.name}`}
+            className="bg-muted-foreground/15 grid size-8 shrink-0 touch-none place-items-center rounded-full text-stone-500"
+            {...attributes}
+            {...listeners}
+          >
+            <span className="icon-[akar-icons--drag-horizontal-fill] size-4.5" />
+          </button>
+        ) : (
+          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-(--theme-color-soft) text-(--theme-color)">
+            <span className="icon-[lucide--tag] size-4.5 text-(--theme-color)" />
+          </span>
+        )}
+      </PresenceFade>
       {editing ? (
         <input
           value={name}
@@ -91,22 +102,16 @@ function SortableCategoryRow({
           {category.name}
         </span>
       )}
-      <AnimatePresence initial={false}>
-        {editing && (
-          <motion.button
-            type="button"
-            aria-label={`删除${category.name}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15, ease: "easeInOut" }}
-            onClick={onDelete}
-            className="grid size-5.5 shrink-0 place-items-center rounded-full bg-(--lc-red) text-white"
-          >
-            <span className="icon-[tabler--minus] size-4" />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      <ConditionalPresence show={editing}>
+        <button
+          type="button"
+          aria-label={`删除${category.name}`}
+          onClick={onDelete}
+          className="grid size-5.5 shrink-0 place-items-center rounded-full bg-(--lc-red)/25 text-(--lc-red)"
+        >
+          <span className="icon-[tabler--minus] size-4" />
+        </button>
+      </ConditionalPresence>
     </div>
   );
 }
@@ -276,9 +281,16 @@ export default function CategoriesPage() {
               onClick={() => (editing ? void saveEdits() : setEditing(true))}
               disabled={saving}
             >
-              <span
-                className={`${editing ? "icon-[tabler--check-filled]" : "icon-[ci--edit-pencil-01]"} size-5.5`}
-              />
+              <PresenceFade
+                as="span"
+                mode="popLayout"
+                stateKey={editing ? "editing" : "viewing"}
+                className="inline-flex size-5.5"
+              >
+                <span
+                  className={`${editing ? "icon-[lucide--check]" : "icon-[tabler--pencil]"} size-5.5`}
+                />
+              </PresenceFade>
             </ActionButton>
           ) : null
         }
@@ -341,9 +353,9 @@ export default function CategoriesPage() {
             <button
               type="button"
               onClick={openAdd}
-              className="flex h-9.5 w-full items-center justify-center gap-1 text-[13px] font-semibold text-(--theme-color)"
+              className="flex h-10 w-full items-center justify-center gap-1 text-[13px] font-semibold text-(--theme-color)"
             >
-              <span className="icon-[tabler--plus] size-4" />
+              <span className="icon-[tabler--plus] size-4.5" />
               添加菜品种类
             </button>
           </section>

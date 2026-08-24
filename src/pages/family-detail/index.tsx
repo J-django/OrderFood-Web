@@ -1,4 +1,3 @@
-import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Navigate, useParams } from "react-router";
 import {
@@ -7,7 +6,13 @@ import {
   removeFamilyMember,
   searchFamilyInvitation,
 } from "@/api/endpoints/families";
-import { ActionButton, Dialog, Page } from "@/components";
+import {
+  ActionButton,
+  ConditionalPresence,
+  Dialog,
+  Page,
+  PresenceFade,
+} from "@/components";
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
 import { routePaths } from "@/constants";
 import { useDocumentTitle } from "@/hooks";
@@ -143,9 +148,16 @@ export default function FamilyDetailPage() {
               aria-label={editingMembers ? "完成编辑成员" : "编辑成员"}
               onClick={() => setEditingMembers((editing) => !editing)}
             >
-              <span
-                className={`${editingMembers ? "icon-[fa7-solid--close]" : "icon-[tabler--pencil]"} size-5.5`}
-              />
+              <PresenceFade
+                as="span"
+                mode="popLayout"
+                stateKey={editingMembers ? "editing" : "viewing"}
+                className="inline-flex size-5.5"
+              >
+                <span
+                  className={`${editingMembers ? "icon-[lucide--check]" : "icon-[tabler--pencil]"} size-5.5`}
+                />
+              </PresenceFade>
             </ActionButton>
           ) : null
         }
@@ -179,22 +191,16 @@ export default function FamilyDetailPage() {
                 {isMemberOwner ? (
                   <span className="text-[13px] text-stone-400">管理员</span>
                 ) : (
-                  <AnimatePresence initial={false}>
-                    {editingMembers && (
-                      <motion.button
-                        type="button"
-                        aria-label={`移除${member.name}`}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.15, ease: "easeInOut" }}
-                        onClick={() => setRemovingMemberId(member.id)}
-                        className="grid size-5.5 shrink-0 place-items-center rounded-full bg-(--lc-red) text-white"
-                      >
-                        <span className="icon-[tabler--minus] size-4" />
-                      </motion.button>
-                    )}
-                  </AnimatePresence>
+                  <ConditionalPresence show={editingMembers}>
+                    <button
+                      type="button"
+                      aria-label={`移除${member.name}`}
+                      onClick={() => setRemovingMemberId(member.id)}
+                      className="grid size-5.5 shrink-0 place-items-center rounded-full bg-(--lc-red)/25 text-(--lc-red)"
+                    >
+                      <span className="icon-[tabler--minus] size-4" />
+                    </button>
+                  </ConditionalPresence>
                 )}
               </div>
             );
@@ -203,9 +209,9 @@ export default function FamilyDetailPage() {
             <button
               type="button"
               onClick={() => setShowAddDialog(true)}
-              className="flex h-9.5 w-full items-center justify-center gap-1 text-[13px] font-semibold text-(--theme-color)"
+              className="flex h-10 w-full items-center justify-center gap-1 text-[13px] font-semibold text-(--theme-color)"
             >
-              <span className="icon-[tabler--plus] size-4" />
+              <span className="icon-[tabler--plus] size-4.5" />
               邀请成员
             </button>
           )}
