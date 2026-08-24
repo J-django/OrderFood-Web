@@ -6,13 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { routePaths } from "@/constants";
+import {
+  IMAGE_MAX_SIZE,
+  IMAGE_MAX_SIZE_LABEL,
+  routePaths,
+} from "@/constants";
 import { useDocumentTitle } from "@/hooks";
 import { toast } from "@/components/ui/toast";
 import { useFamilyStore } from "@/store";
 import type { ApiMenuCategory } from "@/types";
-
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 export default function AddDishPage() {
   useDocumentTitle("添加菜品");
@@ -41,9 +43,12 @@ export default function AddDishPage() {
   function chooseImage(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (file.size > MAX_IMAGE_SIZE) {
+    if (file.size > IMAGE_MAX_SIZE) {
       event.target.value = "";
-      toast.add({ type: "error", title: "图片大小不能超过 5MB" });
+      toast.add({
+        type: "error",
+        title: `图片大小不能超过 ${IMAGE_MAX_SIZE_LABEL}`,
+      });
       return;
     }
     const reader = new FileReader();

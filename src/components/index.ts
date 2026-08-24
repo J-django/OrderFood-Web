@@ -4,6 +4,7 @@ export * from "./conditional-presence";
 export * from "./family-required";
 export * from "./food-card";
 export * from "./image";
+export * from "./image-picker";
 export * from "./page";
 export * from "./presence-fade";
 export * from "./ui/button";

@@ -45,29 +45,23 @@ function DetailLine({
   emptyText?: string;
 }) {
   const isEmpty = !value.trim();
-
-  if (isEmpty && truncate && emptyText) {
-    return (
-      <p className="w-full truncate text-xs leading-4 text-[#777]">
-        <span className="font-medium text-[#555]">{label}：</span>
-        {emptyText}
-      </p>
-    );
-  }
+  const content = isEmpty ? emptyText : value;
 
   return (
-    <p
-      className={cn(
-        "w-full overflow-hidden text-xs leading-4 text-[#777]",
-        truncate && "truncate",
-      )}
-    >
-      <span className="font-medium text-[#555]">{label}：</span>
-      {keyword ? (
-        <HighlightedText text={value} keyword={keyword} />
-      ) : (
-        value || emptyText
-      )}
+    <p className="flex w-full min-w-0 items-start text-xs leading-4 text-[#777]">
+      <span className="shrink-0 font-medium text-[#555]">{label}：</span>
+      <span
+        className={cn(
+          "min-w-0 flex-1",
+          truncate ? "truncate" : "wrap-break-word whitespace-normal",
+        )}
+      >
+        {!isEmpty && keyword ? (
+          <HighlightedText text={value} keyword={keyword} />
+        ) : (
+          content
+        )}
+      </span>
     </p>
   );
 }
@@ -147,7 +141,7 @@ export function FoodCard({
         <div className="flex w-full items-start">
           <h3
             className={cn(
-              "min-w-0 flex-1 font-semibold text-[#222]",
+              "min-w-0 flex-1 truncate font-semibold text-[#222]",
               isSmall ? "mb-0.5" : "mb-1",
               compact
                 ? "text-sm leading-5 font-normal"
