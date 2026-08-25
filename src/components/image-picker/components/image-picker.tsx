@@ -44,7 +44,7 @@ function ImagePicker({
   return (
     <div
       className={cn(
-        "relative aspect-4/3 h-auto w-full overflow-hidden rounded-2xl",
+        "relative aspect-4/3 h-auto w-full overflow-hidden rounded-2xl bg-[#f8f8f8]",
         className,
       )}
     >
@@ -72,7 +72,7 @@ function ImagePicker({
           onClick={() => inputRef.current?.click()}
           disablePressMotion={true}
           disabled={disabled}
-          className="group size-full flex-col justify-center border-none bg-[#f8f8f8] px-0 text-sm text-[#999]"
+          className="group size-full flex-col justify-center border-none bg-transparent px-0 text-sm text-[#999]"
         >
           <span className="absolute inset-0 grid place-items-center transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
             <span className="icon-[lucide--camera] size-6 text-[#999]" />

@@ -1,16 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { createDish, getMenuCategories } from "@/api/endpoints/menu";
-import { FamilyRequired, Page } from "@/components";
+import { FamilyRequired, ImagePicker, Page } from "@/components";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  IMAGE_MAX_SIZE,
-  IMAGE_MAX_SIZE_LABEL,
-  routePaths,
-} from "@/constants";
+import { IMAGE_MAX_SIZE, IMAGE_MAX_SIZE_LABEL, routePaths } from "@/constants";
 import { useDocumentTitle } from "@/hooks";
 import { toast } from "@/components/ui/toast";
 import { useFamilyStore } from "@/store";
@@ -20,7 +16,6 @@ export default function AddDishPage() {
   useDocumentTitle("添加菜品");
   const navigate = useNavigate();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
-  const inputRef = useRef<HTMLInputElement>(null);
   const [image, setImage] = useState("");
   const [name, setName] = useState("");
   const [ingredients, setIngredients] = useState("");
@@ -39,22 +34,6 @@ export default function AddDishPage() {
   }, [currentFamilyId]);
 
   const selectedCategory = categories.find((item) => item.id === categoryId);
-
-  function chooseImage(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    if (file.size > IMAGE_MAX_SIZE) {
-      event.target.value = "";
-      toast.add({
-        type: "error",
-        title: `图片大小不能超过 ${IMAGE_MAX_SIZE_LABEL}`,
-      });
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => setImage(String(reader.result));
-    reader.readAsDataURL(file);
-  }
 
   function openCategoryDrawer() {
     if (categories.length === 0) {
@@ -108,32 +87,22 @@ export default function AddDishPage() {
           <FamilyRequired className="min-h-full" />
         ) : (
           <form onSubmit={submit} className="p-2.5">
-            <Input
-              ref={inputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={chooseImage}
+            <ImagePicker
+              className="bg-white"
+              src={image}
+              alt="菜品预览"
+              maxSize={IMAGE_MAX_SIZE}
+              selectLabel="选择菜品图片"
+              deleteLabel="删除菜品图片"
+              onChange={setImage}
+              onDelete={() => setImage("")}
+              onFileTooLarge={() =>
+                toast.add({
+                  type: "error",
+                  title: `图片大小不能超过 ${IMAGE_MAX_SIZE_LABEL}`,
+                })
+              }
             />
-            <Button
-              type="button"
-              disablePressMotion={true}
-              onClick={() => inputRef.current?.click()}
-              className="flex aspect-4/3 h-auto w-full flex-col items-center justify-center overflow-hidden rounded-2xl border-none bg-white px-0 text-sm text-[#999]"
-            >
-              {image ? (
-                <img
-                  src={image}
-                  alt="菜品预览"
-                  className="size-full object-cover"
-                />
-              ) : (
-                <>
-                  <span className="icon-[tabler--plus] size-7" />
-                  <span className="mt-2">选择菜品图片</span>
-                </>
-              )}
-            </Button>
             <Button
               type="button"
               disablePressMotion={true}
