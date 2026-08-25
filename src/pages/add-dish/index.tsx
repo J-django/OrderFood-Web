@@ -88,7 +88,7 @@ export default function AddDishPage() {
         ) : (
           <form onSubmit={submit} className="p-2.5">
             <ImagePicker
-              className="bg-white"
+              classes={{ container: "bg-white" }}
               src={image}
               alt="菜品预览"
               maxSize={IMAGE_MAX_SIZE}

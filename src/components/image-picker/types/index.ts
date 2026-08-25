@@ -1,5 +1,13 @@
 import type { ComponentProps } from "react";
 
+type ImagePickerClasses = {
+  container?: string;
+  button?: string;
+  image?: string;
+  deleteButton?: string;
+  pasteInput?: string;
+};
+
 type ImagePickerProps = {
   src?: string;
   alt?: string;
@@ -9,10 +17,10 @@ type ImagePickerProps = {
   deleteLabel?: string;
   pasteLabel?: string;
   pastePlaceholder?: string;
-  className?: string;
+  classes?: ImagePickerClasses;
   onChange: (src: string) => void;
   onDelete: () => void;
   onFileTooLarge?: (file: File) => void;
 } & Pick<ComponentProps<"input">, "name" | "required" | "disabled">;
 
-export type { ImagePickerProps };
+export type { ImagePickerClasses, ImagePickerProps };

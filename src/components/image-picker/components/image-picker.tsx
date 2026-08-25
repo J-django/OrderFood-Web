@@ -16,7 +16,7 @@ function ImagePicker({
   deleteLabel = "删除图片",
   pasteLabel = "粘贴图片",
   pastePlaceholder = "粘贴图片",
-  className,
+  classes,
   onChange,
   onDelete,
   onFileTooLarge,
@@ -75,7 +75,7 @@ function ImagePicker({
     <div
       className={cn(
         "relative aspect-4/3 h-auto w-full overflow-hidden rounded-2xl bg-[#f8f8f8]",
-        className,
+        classes?.container,
       )}
     >
       <input
@@ -93,7 +93,10 @@ function ImagePicker({
         <img
           src={src}
           alt={alt}
-          className="absolute inset-0 size-full object-cover"
+          className={cn(
+            "absolute inset-0 size-full object-cover",
+            classes?.image,
+          )}
         />
       ) : (
         <Button
@@ -102,7 +105,10 @@ function ImagePicker({
           onClick={() => inputRef.current?.click()}
           disablePressMotion={true}
           disabled={disabled}
-          className="group size-full flex-col justify-center border-none bg-transparent px-0 text-sm text-[#999]"
+          className={cn(
+            "group size-full flex-col justify-center border-none bg-transparent px-0 text-sm text-[#999]",
+            classes?.button,
+          )}
         >
           <span className="absolute inset-0 grid place-items-center transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
             <span className="icon-[tabler--camera-plus] size-6 text-[#999]" />
@@ -117,7 +123,7 @@ function ImagePicker({
           aria-label={deleteLabel}
           onClick={onDelete}
           disabled={disabled}
-          className="absolute top-1 right-1 z-10"
+          className={cn("absolute top-1 right-1 z-10", classes?.deleteButton)}
         >
           <span className="icon-[tabler--x] size-4" aria-hidden="true" />
         </ActionButton>
@@ -130,7 +136,10 @@ function ImagePicker({
           placeholder={pastePlaceholder}
           disabled={disabled}
           onPaste={handlePaste}
-          className="absolute right-1 bottom-1 z-10 h-9 w-[calc(100%-0.5rem)] rounded-full border-none bg-[#f8f8f8]"
+          className={cn(
+            "absolute right-1 bottom-1 left-1 z-10 h-9 w-auto rounded-xl border-none bg-[#f8f8f8]",
+            classes?.pasteInput,
+          )}
         />
       ) : null}
     </div>

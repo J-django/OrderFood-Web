@@ -103,6 +103,7 @@ function MenuDetailEditor({
   return (
     <>
       <ImagePicker
+        classes={{ pasteInput: "bg-white" }}
         src={draft.image}
         alt={draft.name}
         maxSize={IMAGE_MAX_SIZE}

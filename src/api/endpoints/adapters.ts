@@ -9,8 +9,6 @@ import type {
   FoodOrder,
 } from "@/types";
 
-const FALLBACK_DISH_IMAGE = "/images/menu/garden-salad.jpg";
-
 export const defaultMenuCategory: MenuCategory = "其他";
 
 /**
@@ -27,7 +25,7 @@ export function dishToMenuItem(dish: ApiDish): MenuItem {
     name: dish.name,
     category: (dish.category?.name as MenuCategory) || defaultMenuCategory,
     price: 0,
-    image: dish.images?.[0] || FALLBACK_DISH_IMAGE,
+    image: dish.images?.[0] || "",
     ingredients: dish.ingredients ?? "",
     seasonings: dish.garnishes ?? "",
     method: dish.method ?? "",
