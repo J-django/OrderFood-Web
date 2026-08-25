@@ -16,7 +16,7 @@ export function ActionButton({
     <button
       {...props}
       className={cn(
-        "grid h-9 w-9 cursor-pointer place-items-center rounded-full transition-colors active:opacity-80 disabled:cursor-not-allowed disabled:opacity-50",
+        "grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full transition-colors active:opacity-80 disabled:cursor-not-allowed disabled:opacity-50",
         variantClasses[variant],
         className,
       )}

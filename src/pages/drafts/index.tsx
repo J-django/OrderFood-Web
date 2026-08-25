@@ -432,7 +432,7 @@ export default function DraftsPage() {
                         <h2 className="min-w-0 truncate text-sm font-semibold text-[#333]">
                           草稿{draft.name ? `「${draft.name}」` : ""}
                         </h2>
-                        <div className="flex translate-x-2 translate-y-1 items-center gap-1">
+                        <div className="flex shrink-0 translate-x-2 translate-y-1 items-center gap-1">
                           <ActionButton
                             type="button"
                             variant="danger"
