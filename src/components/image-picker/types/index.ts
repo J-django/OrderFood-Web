@@ -7,6 +7,8 @@ type ImagePickerProps = {
   maxSize?: number;
   selectLabel?: string;
   deleteLabel?: string;
+  pasteLabel?: string;
+  pastePlaceholder?: string;
   className?: string;
   onChange: (src: string) => void;
   onDelete: () => void;

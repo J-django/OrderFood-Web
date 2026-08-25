@@ -107,7 +107,7 @@ export default function AddDishPage() {
               type="button"
               disablePressMotion={true}
               onClick={openCategoryDrawer}
-              className="mt-2.5 flex h-10.5 w-full items-center justify-between rounded-xl border-none bg-white px-3 text-left text-sm"
+              className="mt-2.5 flex h-10.5 w-full cursor-pointer items-center justify-between rounded-xl border-none bg-white px-3 text-left text-sm"
             >
               <span
                 className={selectedCategory ? "text-[#222]" : "text-[#999]"}

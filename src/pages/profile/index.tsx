@@ -83,7 +83,7 @@ export default function ProfilePage() {
           <Link
             key={entry.path}
             to={entry.path}
-            className="text-4 relative flex items-center justify-between px-3 py-2 text-[#222] after:absolute after:right-3 after:bottom-0 after:left-3 after:h-px after:bg-[#f0f0f0] after:content-[''] last:after:hidden"
+            className="text-4 relative flex items-center justify-between px-2.5 py-2 text-[#222] after:absolute after:right-3 after:bottom-0 after:left-3 after:h-px after:bg-[#f0f0f0] after:content-[''] last:after:hidden"
           >
             <span className="flex items-center gap-3">
               <span className="grid size-8 shrink-0 place-items-center rounded-full bg-(--theme-color-soft) text-(--theme-color)">
